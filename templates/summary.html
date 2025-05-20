@@ -4,42 +4,47 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="text-center">Summary Results</h2>
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Summary for {{ filename }}</h4>
                 </div>
                 <div class="card-body">
-                    <h4>File: {{ filename }}</h4>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
                     
-                    {% if summary %}
-                        <div class="mt-4">
-                            <h5>Summary:</h5>
-                            <div class="p-3 bg-light rounded">
-                                {{ summary|nl2br }}
-                            </div>
-                        </div>
-                        
-                        <div class="mt-4">
-                            <h5>Options:</h5>
-                            <div class="d-grid gap-2">
-                                <button id="copyBtn" class="btn btn-outline-primary" onclick="copyToClipboard()">Copy Summary</button>
-                                
-                                <form action="{{ url_for('email_summary') }}" method="post" class="mt-2">
-                                    <div class="input-group">
-                                        <input type="email" class="form-control" name="email" placeholder="Enter email address" {% if current_user.email %}value="{{ current_user.email }}"{% endif %} required>
-                                        <button type="submit" class="btn btn-primary">Email Summary</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    {% else %}
-                        <div class="alert alert-warning">
-                            No summary available. There might have been an error processing your PDF.
-                        </div>
-                    {% endif %}
+                    <div class="summary-info mb-4">
+                        <p class="text-muted">Generated on: {{ created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                    </div>
                     
-                    <div class="d-grid mt-4">
-                        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+                    <div class="summary-content p-4 bg-light rounded">
+                        {{ summary|safe }}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i> Back to Home
+                        </a>
+                        <div>
+                            <button class="btn btn-outline-success me-2" id="copy-btn">
+                                <i class="fas fa-copy me-1"></i> Copy
+                            </button>
+                            <a href="#" class="btn btn-outline-info" id="email-btn">
+                                <i class="fas fa-envelope me-1"></i> Email
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small>Free tier: 3 summaries per day</small>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                        </a>
                     </div>
                 </div>
             </div>
@@ -48,15 +53,18 @@
 </div>
 
 <script>
-function copyToClipboard() {
-    const summaryText = `{{ summary|replace('\n', '\\n')|safe }}`;
-    navigator.clipboard.writeText(summaryText).then(function() {
-        const copyBtn = document.getElementById('copyBtn');
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => {
-            copyBtn.textContent = 'Copy Summary';
-        }, 2000);
+    document.getElementById('copy-btn').addEventListener('click', function() {
+        const summaryText = document.querySelector('.summary-content').innerText;
+        navigator.clipboard.writeText(summaryText).then(function() {
+            alert('Summary copied to clipboard!');
+        }, function() {
+            alert('Failed to copy summary. Please try again.');
+        });
     });
-}
+    
+    document.getElementById('email-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('Email feature will be available soon!');
+    });
 </script>
 {% endblock %}

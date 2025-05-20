@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Dashboard</h4>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <div class="usage-stats mb-4 p-3 bg-light rounded">
+                        <h5>Your Usage Today</h5>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ (usage_today / 3) * 100 }}%" aria-valuenow="{{ usage_today }}" aria-valuemin="0" aria-valuemax="3"></div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>{{ usage_today }} / 3 summaries used</span>
+                            <span>{{ remaining }} remaining today</span>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mb-3">Your Recent Summaries</h5>
+                    
+                    {% if summaries %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Filename</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for id, data in summaries.items() %}
+                                    <tr>
+                                        <td>{{ data.filename }}</td>
+                                        <td>{{ data.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>
+                                            <a href="{{ url_for('summary', summary_id=id) }}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-eye me-1"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            You haven't created any summaries yet. <a href="{{ url_for('index') }}">Upload a PDF</a> to get started.
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Home
+                        </a>
+                        <a href="#" class="btn btn-outline-success">
+                            <i class="fas fa-crown me-1"></i> Upgrade to Premium
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
