@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from oauth import setup_oauth
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
@@ -38,17 +39,27 @@ usage_db = {}
 
 # User model
 class User(UserMixin):
-    def __init__(self, id, email, password_hash, name=None):
+    def __init__(self, id, name, email, profile_pic=None):
         self.id = id
-        self.email = email
-        self.password_hash = password_hash
         self.name = name
-        self.created_at = datetime.now()
+        self.email = email
+        self.profile_pic = profile_pic
 
 @login_manager.user_loader
 def load_user(user_id):
-    return users_db.get(user_id)
-
+    # Here you would typically load the user from your database
+    # For simplicity, we'll check if the user is in the session
+    if 'user' in session and session['user']['id'] == user_id:
+        user_data = session['user']
+        return User(
+            id=user_data['id'],
+            name=user_data['name'],
+            email=user_data['email'],
+            profile_pic=user_data.get('profile_pic')
+        )
+    return None
+# Setup OAuth - This goes AFTER the load_user function, not inside it
+oauth = setup_oauth(app)
 # Middleware to track usage
 def track_usage(user_id):
     today = datetime.now().strftime('%Y-%m-%d')
