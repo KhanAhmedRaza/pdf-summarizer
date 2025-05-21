@@ -246,11 +246,11 @@ def login():
 @app.route('/login/callback')
 def login_callback():
     token = oauth.google.authorize_access_token()
-    user_info = oauth.google.get('userinfo').json()
+    user_info = oauth.google.userinfo(token=token)
     
     # Create user object
     user = User(
-        id=user_info['id'],
+        id=user_info['sub'],
         name=user_info['name'],
         email=user_info['email'],
         profile_pic=user_info.get('picture')
