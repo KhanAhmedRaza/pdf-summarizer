@@ -50,6 +50,27 @@
             </div>
         </div>
     </nav>
+	<ul class="navbar-nav ms-auto">
+    {% if current_user.is_authenticated %}
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% if current_user.profile_pic %}
+                    <img src="{{ current_user.profile_pic }}" alt="Profile" class="rounded-circle me-1" style="width: 24px; height: 24px;">
+                {% endif %}
+                {{ current_user.name }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+        </li>
+    {% else %}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('login') }}">Sign In</a>
+        </li>
+    {% endif %}
+	</ul>
 
     <!-- Main Content -->
     {% block content %}{% endblock %}

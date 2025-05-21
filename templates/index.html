@@ -175,9 +175,10 @@
             </div>
             <div class="modal-body">
                 <p class="text-muted">Your PDF has been processed! Sign in or create an account to view your summary.</p>
-                <button class="btn btn-google w-100 mb-3">
-                    <i class="fab fa-google me-2"></i> Continue with Google
-                </button>
+               <a href="{{ url_for('login') }}" class="btn btn-google w-100 mb-3">
+					<i class="fab fa-google me-2"></i> Continue with Google
+				</a>
+
                 <div class="auth-separator">
                     <span>or</span>
                 </div>

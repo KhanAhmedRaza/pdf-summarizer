@@ -230,29 +230,47 @@ def summary(summary_id):
                           created_at=summary_data['created_at'])
 
 @app.route('/login', methods=['GET', 'POST'])
+@app.route('/login')
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
+    # Clear any existing session
+    session.clear()
     
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        
-        # Find user by email
-        user = next((u for u in users_db.values() if u.email == email), None)
-        
-        if user and check_password_hash(user.password_hash, password):
-            login_user(user)
-            
-            # Check if there's a pending PDF in session
-            if 'pdf_text' in session:
-                return redirect(url_for('preview_to_summary'))
-            
-            return redirect(url_for('index'))
-        else:
-            flash('Invalid email or password', 'error')
+    # Store the next page to redirect to after login (if any)
+    if request.args.get('next'):
+        session['next'] = request.args.get('next')
     
-    return render_template('login.html')
+    # Google OAuth login
+    redirect_uri = url_for('login_callback', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+    
+@app.route('/login/callback')
+def login_callback():
+    token = oauth.google.authorize_access_token()
+    user_info = oauth.google.get('userinfo').json()
+    
+    # Create user object
+    user = User(
+        id=user_info['id'],
+        name=user_info['name'],
+        email=user_info['email'],
+        profile_pic=user_info.get('picture')
+    )
+    
+    # Store user in session
+    session['user'] = {
+        'id': user.id,
+        'name': user.name,
+        'email': user.email,
+        'profile_pic': user.profile_pic
+    }
+    
+    # Log in the user
+    login_user(user)
+    
+    # Redirect to dashboard or requested page
+    next_page = session.get('next', '/')
+    session.pop('next', None)
+    return redirect(next_page)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -293,59 +311,22 @@ def register():
 @login_required
 def logout():
     logout_user()
+    session.clear()
     return redirect(url_for('index'))
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    # Get user's summaries
-    user_summaries = {id: data for id, data in summaries_db.items() 
-                     if data['user_id'] == current_user.id}
-    
-    # Get usage data
-    today = datetime.now().strftime('%Y-%m-%d')
-    usage_today = usage_db.get(current_user.id, {}).get(today, 0)
-    remaining = max(0, 3 - usage_today)
-    
-    return render_template('dashboard.html', 
-                          summaries=user_summaries,
-                          usage_today=usage_today,
-                          remaining=remaining)
+    # Your dashboard code here
+    return render_template('dashboard.html')
 
-# Google OAuth routes
-@app.route('/auth/google')
-def google_auth():
-    # This would be implemented with a proper OAuth library in production
-    # For now, we'll simulate the flow
-    return render_template('google_auth_simulation.html')
+@app.route('/summary/<summary_id>')
+@login_required
+def view_summary(summary_id):
+    # Your summary viewing code here
+    return render_template('summary.html')
 
-@app.route('/auth/google/callback', methods=['POST'])
-def google_callback():
-    # Simulate Google auth callback
-    email = request.form.get('email')
-    name = request.form.get('name')
-    
-    # Check if user exists
-    user = next((u for u in users_db.values() if u.email == email), None)
-    
-    if not user:
-        # Create new user
-        user_id = str(uuid.uuid4())
-        users_db[user_id] = User(
-            id=user_id,
-            email=email,
-            password_hash=None,  # Google auth doesn't use password
-            name=name
-        )
-        user = users_db[user_id]
-    
-    login_user(user)
-    
-    # Check if there's a pending PDF in session
-    if 'pdf_text' in session:
-        return redirect(url_for('preview_to_summary'))
-    
-    return redirect(url_for('index'))
+
 
 # API routes for testing
 @app.route('/api/test/reset', methods=['POST'])
