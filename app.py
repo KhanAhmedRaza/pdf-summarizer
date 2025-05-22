@@ -232,12 +232,29 @@ def summary(summary_id):
 @app.route('/login', methods=['GET', 'POST'])
 @app.route('/login')
 def login():
-    # Clear any existing session
+    if request.method == 'POST':
+        # Manual login form submitted
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        # TODO: Validate credentials
+        user = get_user_by_email(email)  # Example function
+        if user and check_password(user, password):  # Your password check logic
+            login_user(user)
+            return redirect(session.pop('next', '/dashboard'))
+        else:
+            flash("Invalid email or password", "danger")
+
+    # GET request: clear session and show login form
     session.clear()
-    
-    # Store the next page to redirect to after login (if any)
     if request.args.get('next'):
         session['next'] = request.args.get('next')
+
+    return render_template('login.html')
+    
+    
+@app.route('/login/google')
+def login_google():
     
     # Google OAuth login
     redirect_uri = url_for('login_callback', _external=True)
