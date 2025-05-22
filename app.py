@@ -248,10 +248,10 @@ def login():
             login_user(user)
             
             # Check if there's a pending PDF in session
-                if 'pdf_text' in session:
-                    return redirect(url_for('preview_to_summary'))
+            if 'pdf_text' in session:
+                return redirect(url_for('preview_to_summary'))
             
-                return redirect(url_for('index'))
+            return redirect(url_for('index'))
         else:
             flash('Invalid email or password', 'error')
 
