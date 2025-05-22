@@ -37,13 +37,14 @@
                         <button type="submit" class="btn btn-primary w-100">Create Account</button>
                     </form>
                     
-                    <div class="auth-separator mt-4">
-                        <span>or</span>
-                    </div>
+                    <div class="text-center my-3">
+						<span class="text-muted">— or —</span>
+					</div>
+
                     
-                    <a href="{{ url_for('google_auth') }}" class="btn btn-google w-100 mt-3">
-                        <i class="fab fa-google me-2"></i> Continue with Google
-                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-google w-100 mt-3">
+						<i class="fab fa-google me-2"></i> Continue with Google
+					</a>
                     
                     <p class="text-center mt-4">
                         Already have an account? <a href="{{ url_for('login') }}" class="text-decoration-none">Sign in</a>
