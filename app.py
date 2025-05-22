@@ -237,13 +237,23 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        # TODO: Validate credentials
-        user = get_user_by_email(email)  # Example function
-        if user and check_password(user, password):  # Your password check logic
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
+        # Find user by email
+        user = next((u for u in users_db.values() if u.email == email), None)
+        
+        if user and check_password_hash(user.password_hash, password):
             login_user(user)
-            return redirect(session.pop('next', '/dashboard'))
+            
+            # Check if there's a pending PDF in session
+                if 'pdf_text' in session:
+                    return redirect(url_for('preview_to_summary'))
+            
+                return redirect(url_for('index'))
         else:
-            flash("Invalid email or password", "danger")
+            flash('Invalid email or password', 'error')
 
     # GET request: clear session and show login form
     session.clear()
