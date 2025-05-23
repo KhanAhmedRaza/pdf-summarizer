@@ -229,6 +229,10 @@ def summary(summary_id):
                           summary=summary_data['summary'],
                           created_at=summary_data['created_at'])
 
+from flask import render_template, request, redirect, url_for, flash, session
+from flask_login import login_user
+from werkzeug.security import check_password_hash
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -236,30 +240,29 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
 
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        
-        # Find user by email
+        # Find user by email (replace 'users_db' with your actual user database or query)
         user = next((u for u in users_db.values() if u.email == email), None)
-        
+
         if user and check_password_hash(user.password_hash, password):
-            login_user(user)
-            
+            login_user(user)  # Log the user in
+
             # Check if there's a pending PDF in session
             if 'pdf_text' in session:
-                return redirect(url_for('preview_to_summary'))
+                return redirect(url_for('preview_to_summary'))  # Redirect to PDF preview/summary page
             
-            return redirect(url_for('index'))
+            return redirect(url_for('index'))  # Redirect to home page or dashboard
         else:
-            flash('Invalid email or password', 'error')
+            flash('Invalid email or password', 'error')  # Display an error message if login fails
 
     # GET request: clear session and show login form
     session.clear()
+
+    # Store the next page in the session, if there's one (for redirect after login)
     if request.args.get('next'):
         session['next'] = request.args.get('next')
 
     return render_template('login.html')
+
     
     
 @app.route('/login/google')
