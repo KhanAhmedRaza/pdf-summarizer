@@ -250,13 +250,26 @@ def login():
         
         if user and check_password_hash(user.password_hash, password):
             print(f"Login successful for user: {email}")
+            # Store user in session
+            session['user'] = {
+                'id': user.id,
+                'name': user.name,
+                'email': user.email,
+                'profile_pic': user.profile_pic
+            }
+    
+            # Log in the user
             login_user(user)
+    
+            # Redirect to dashboard or requested page
+            next_page = session.get('next', '/')
+            session.pop('next', None)
             
             # Check if there's a pending PDF in session
             if 'pdf_text' in session:
                 return redirect(url_for('preview_to_summary'))
             
-            return redirect(url_for('index'))
+            return redirect(next_page)
         else:
             print(f"Login failed for email: {email}")
             flash('Invalid email or password', 'danger')
