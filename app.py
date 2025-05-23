@@ -235,33 +235,34 @@ from werkzeug.security import check_password_hash
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    print(f"Login route accessed with method: {request.method}")
+    
     if request.method == 'POST':
         # Manual login form submitted
         email = request.form.get('email')
         password = request.form.get('password')
-
-        # Find user by email (replace 'users_db' with your actual user database or query)
+        
+        print(f"Form data received - Email: {email}, Password: {'*' * len(password) if password else 'None'}")
+        
+        # Find user by email
         user = next((u for u in users_db.values() if u.email == email), None)
-
+        
         if user and check_password_hash(user.password_hash, password):
-            login_user(user)  # Log the user in
-
+            print(f"Login successful for user: {email}")
+            login_user(user)
+            
             # Check if there's a pending PDF in session
             if 'pdf_text' in session:
-                return redirect(url_for('preview_to_summary'))  # Redirect to PDF preview/summary page
+                return redirect(url_for('preview_to_summary'))
             
-            return redirect(url_for('index'))  # Redirect to home page or dashboard
+            return redirect(url_for('index'))
         else:
-            flash('Invalid email or password', 'error')  # Display an error message if login fails
-
-    # GET request: clear session and show login form
-    session.clear()
-
-    # Store the next page in the session, if there's one (for redirect after login)
-    if request.args.get('next'):
-        session['next'] = request.args.get('next')
-
+            print(f"Login failed for email: {email}")
+            flash('Invalid email or password', 'danger')
+    
+    # For both GET requests and failed POST requests
     return render_template('login.html')
+
 
     
     
