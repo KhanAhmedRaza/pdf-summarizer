@@ -39,10 +39,11 @@ usage_db = {}
 
 # User model
 class User(UserMixin):
-    def __init__(self, id, name, email, profile_pic=None):
+    def __init__(self, id, name, email, password_hash=None, profile_pic=None):
         self.id = id
         self.name = name
         self.email = email
+        self.password_hash = password_hash
         self.profile_pic = profile_pic
 
 @login_manager.user_loader
@@ -304,38 +305,48 @@ def login_callback():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        name = request.form.get('name')
-        
-        # Check if email already exists
-        if any(u.email == email for u in users_db.values()):
-            flash('Email already registered', 'error')
+        try:
+            # Get form data
+            name = request.form.get('name')
+            email = request.form.get('email')
+            password = request.form.get('password')
+            
+            print(f"Registration attempt - Name: {name}, Email: {email}")
+            
+            # Check if user already exists
+            if any(u.email == email for u in users_db.values()):
+                flash('Email already registered', 'danger')
+                return render_template('register.html')
+            
+            # Create new user
+            user_id = str(uuid.uuid4())  # Generate unique ID
+            password_hash = generate_password_hash(password)
+            
+            new_user = User(
+                id=user_id,
+                name=name,
+                email=email,
+                password_hash=password_hash
+            )
+            
+            # Add user to database
+            users_db[user_id] = new_user
+            print(f"User registered successfully: {email}")
+            
+            # Log in the new user
+            login_user(new_user)
+            
+            return redirect(url_for('index'))
+        except Exception as e:
+            print(f"Error during registration: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            flash('An error occurred during registration', 'danger')
             return render_template('register.html')
-        
-        # Create new user
-        user_id = str(uuid.uuid4())
-        users_db[user_id] = User(
-            id=user_id,
-            email=email,
-            password_hash=generate_password_hash(password),
-            name=name
-        )
-        
-        # Log in the new user
-        login_user(users_db[user_id])
-        
-        # Check if there's a pending PDF in session
-        if 'pdf_text' in session:
-            return redirect(url_for('preview_to_summary'))
-        
-        return redirect(url_for('index'))
     
     return render_template('register.html')
+
 
 @app.route('/logout')
 @login_required
