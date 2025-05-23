@@ -230,7 +230,6 @@ def summary(summary_id):
                           created_at=summary_data['created_at'])
 
 @app.route('/login', methods=['GET', 'POST'])
-@app.route('/login')
 def login():
     if request.method == 'POST':
         # Manual login form submitted
