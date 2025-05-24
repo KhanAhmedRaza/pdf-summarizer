@@ -11,6 +11,11 @@ from utils.summarizer import generate_summary
 import json
 from functools import wraps
 import logging
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+# Import the User model from models
+from pdf_summarizer.models.user import User
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -24,6 +29,13 @@ app.config['UPLOAD_FOLDER'] = '/tmp/pdf_uploads'
 app.config['FREE_TIER_MAX_SIZE'] = 5 * 1024 * 1024  # 5MB for free tier
 app.config['TESTING'] = os.environ.get('TESTING', 'False').lower() == 'true'
 
+
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///users.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
 # Ensure upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
@@ -31,6 +43,12 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+# Add this near the top of your app.py
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///users.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # Simple in-memory user database (replace with real DB in production)
 users_db = {}
@@ -48,17 +66,9 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    # Here you would typically load the user from your database
-    # For simplicity, we'll check if the user is in the session
-    if 'user' in session and session['user']['id'] == user_id:
-        user_data = session['user']
-        return User(
-            id=user_data['id'],
-            name=user_data['name'],
-            email=user_data['email'],
-            profile_pic=user_data.get('profile_pic')
-        )
-    return None
+    # Load user directly from the database using SQLAlchemy
+    return User.query.get(user_id)
+
 # Setup OAuth - This goes AFTER the load_user function, not inside it
 oauth = setup_oauth(app)
 # Middleware to track usage
@@ -169,47 +179,8 @@ def upload_pdf():
             os.remove(file_path)
         return redirect(url_for('index'))
 
-@app.route('/preview_to_summary', methods=['POST'])
-@login_required
-def preview_to_summary():
-    # Check if PDF text is in session
-    if 'pdf_text' not in session:
-        flash('Session expired. Please upload your PDF again.', 'error')
-        return redirect(url_for('index'))
-    
-    # Check usage limit
-    if check_usage_limit(current_user.id):
-        flash('You have reached your daily limit of 3 summaries. Please upgrade for unlimited summaries.', 'warning')
-        return redirect(url_for('index'))
-    
-    # Generate summary
-    text = session.get('pdf_text')
-    filename = session.get('pdf_filename')
-    file_path = session.get('pdf_path')
-    
-    summary = generate_summary(text)
-    
-    # Track usage
-    track_usage(current_user.id)
-    
-    # Store summary
-    summary_id = str(uuid.uuid4())
-    summaries_db[summary_id] = {
-        'user_id': current_user.id,
-        'filename': filename,
-        'summary': summary,
-        'created_at': datetime.now()
-    }
-    
-    # Clean up session and file
-    for key in ['pdf_text', 'pdf_filename', 'pdf_path']:
-        if key in session:
-            session.pop(key)
-    
-    if file_path and os.path.exists(file_path):
-        os.remove(file_path)
-    
-    return redirect(url_for('summary', summary_id=summary_id))
+
+
 
 @app.route('/summary/<summary_id>')
 @login_required
@@ -245,32 +216,24 @@ def login():
         
         print(f"Form data received - Email: {email}, Password: {'*' * len(password) if password else 'None'}")
         
-        # Find user by email
-        user = next((u for u in users_db.values() if u.email == email), None)
+        # Find user by email using SQLAlchemy
+        user = User.query.filter_by(email=email).first()
         
         if user and check_password_hash(user.password_hash, password):
             print(f"Login successful for user: {email}")
-    
-            # Log in the user
             login_user(user)
-            print(f"User in session ")
-            # Redirect to dashboard or requested page
-            next_page = session.get('next', '/')
-            session.pop('next', None)
             
             # Check if there's a pending PDF in session
             if 'pdf_text' in session:
                 return redirect(url_for('preview_to_summary'))
-                
-            print(f"redirecting to next page next_page ")
-            return redirect(next_page)
+            
+            return redirect(url_for('index'))
         else:
             print(f"Login failed for email: {email}")
             flash('Invalid email or password', 'danger')
     
     # For both GET requests and failed POST requests
     return render_template('login.html')
-
 
     
     
@@ -283,32 +246,46 @@ def login_google():
     
 @app.route('/login/callback')
 def login_callback():
-    token = oauth.google.authorize_access_token()
-    user_info = oauth.google.userinfo(token=token)
+    try:
+        token = oauth.google.authorize_access_token()
+        user_info = oauth.google.userinfo(token=token)
+        
+        # Check if user exists in database
+        user = User.query.filter_by(email=user_info['email']).first()
+        
+        if not user:
+            # Create new user if they don't exist
+            import uuid
+            user_id = str(uuid.uuid4())
+            
+            user = User(
+                id=user_id,
+                name=user_info['name'],
+                email=user_info['email'],
+                profile_pic=user_info.get('picture')
+            )
+            
+            # Add user to database
+            db.session.add(user)
+            db.session.commit()
+        
+        # Log in the user
+        login_user(user)
+        
+        # Check if there's a pending PDF in session
+        if 'pdf_text' in session:
+            return redirect(url_for('preview_to_summary'))
+        
+        # Redirect to dashboard or requested page
+        next_page = session.get('next', '/')
+        session.pop('next', None)
+        return redirect(next_page)
     
-    # Create user object
-    user = User(
-        id=user_info['sub'],
-        name=user_info['name'],
-        email=user_info['email'],
-        profile_pic=user_info.get('picture')
-    )
-    
-    # Store user in session
-    session['user'] = {
-        'id': user.id,
-        'name': user.name,
-        'email': user.email,
-        'profile_pic': user.profile_pic
-    }
-    
-    # Log in the user
-    login_user(user)
-    
-    # Redirect to dashboard or requested page
-    next_page = session.get('next', '/')
-    session.pop('next', None)
-    return redirect(next_page)
+    except Exception as e:
+        print(f"Error in OAuth callback: {str(e)}")
+        flash('Authentication failed', 'danger')
+        return redirect(url_for('login'))
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -319,15 +296,15 @@ def register():
             email = request.form.get('email')
             password = request.form.get('password')
             
-            print(f"Registration attempt - Name: {name}, Email: {email}")
-            
             # Check if user already exists
-            if any(u.email == email for u in users_db.values()):
+            existing_user = User.query.filter_by(email=email).first()
+            if existing_user:
                 flash('Email already registered', 'danger')
                 return render_template('register.html')
             
             # Create new user
-            user_id = str(uuid.uuid4())  # Generate unique ID
+            import uuid
+            user_id = str(uuid.uuid4())
             password_hash = generate_password_hash(password)
             
             new_user = User(
@@ -338,21 +315,21 @@ def register():
             )
             
             # Add user to database
-            users_db[user_id] = new_user
-            print(f"User registered successfully: {email}")
+            db.session.add(new_user)
+            db.session.commit()
             
             # Log in the new user
             login_user(new_user)
             
             return redirect(url_for('index'))
         except Exception as e:
+            db.session.rollback()
             print(f"Error during registration: {str(e)}")
-            import traceback
-            traceback.print_exc()
             flash('An error occurred during registration', 'danger')
             return render_template('register.html')
     
     return render_template('register.html')
+
 
 
 @app.route('/logout')
