@@ -14,7 +14,8 @@ import logging
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 # Import the User model from models
-from pdf_summarizer.models.user import User
+from extensions import db, migrate, login_manager
+from models.user import User
 
 
 # Configure logging
@@ -36,6 +37,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+# Initialize extensions with app
+db.init_app(app)
+migrate.init_app(app, db)
+login_manager.init_app(app)
+
 # Ensure upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
@@ -50,19 +56,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# Simple in-memory user database (replace with real DB in production)
-users_db = {}
-summaries_db = {}
-usage_db = {}
 
-# User model
-class User(UserMixin):
-    def __init__(self, id, name, email, password_hash=None, profile_pic=None):
-        self.id = id
-        self.name = name
-        self.email = email
-        self.password_hash = password_hash
-        self.profile_pic = profile_pic
 
 @login_manager.user_loader
 def load_user(user_id):
