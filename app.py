@@ -34,7 +34,7 @@ app.config['TESTING'] = os.environ.get('TESTING', 'False').lower() == 'true'
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///users.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+
 migrate = Migrate(app, db)
 
 # Initialize extensions with app
