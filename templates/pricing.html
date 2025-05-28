@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-5 text-center bg-light">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Choose the Perfect Plan for You</h1>
+        <p class="lead text-muted mb-4">Get instant, high-quality summaries of any PDF document</p>
+    </div>
+</section>
+
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h2 class="text-center mb-4">Why Create an Account?</h2>
+                        <p class="text-center mb-4">Even our Free plan requires a simple sign-up. Here's why it's worth it:</p>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="feature-icon mb-3">
+                                    <i class="fas fa-save fa-2x text-primary"></i>
+                                </div>
+                                <h5>Save Your Summaries</h5>
+                                <p class="text-muted">Access your past summaries anytime, from any device</p>
+                            </div>
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="feature-icon mb-3">
+                                    <i class="fas fa-sticky-note fa-2x text-primary"></i>
+                                </div>
+                                <h5>Personalized Notes</h5>
+                                <p class="text-muted">Add custom notes to your summaries for better organization</p>
+                            </div>
+                            <div class="col-md-4 text-center mb-4">
+                                <div class="feature-icon mb-3">
+                                    <i class="fas fa-chart-line fa-2x text-primary"></i>
+                                </div>
+                                <h5>Usage Tracking</h5>
+                                <p class="text-muted">Monitor your summary count and manage your plan effectively</p>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <a href="#pricing" class="btn btn-primary btn-lg">See Our Plans</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center" id="pricing">
+            <div class="col-lg-10">
+                <div class="row">
+                    <!-- Free Plan -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-header bg-white text-center border-0 pt-4">
+                                <h3 class="fw-bold">Free Plan</h3>
+                                <div class="pricing-value">
+                                    <span class="display-4 fw-bold">$0</span>
+                                    <span class="text-muted">/month</span>
+                                </div>
+                                <p class="text-muted">No credit card required</p>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled">
+                                    <li class="mb-3">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        <strong>5 PDF summaries</strong> per month
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Basic summary features
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Simple note-taking
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Email or Google sign-in
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Standard support
+                                    </li>
+                                    <li class="mb-3 text-muted">
+                                        <i class="fas fa-times text-muted me-2"></i>
+                                        Unlimited summaries
+                                    </li>
+                                    <li class="mb-3 text-muted">
+                                        <i class="fas fa-times text-muted me-2"></i>
+                                        GPT-4 quality responses
+                                    </li>
+                                    <li class="mb-3 text-muted">
+                                        <i class="fas fa-times text-muted me-2"></i>
+                                        Downloadable notes
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card-footer bg-white text-center border-0 pb-4">
+                                <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-lg w-100">Create Free Account</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Premium Plan -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 border-0 shadow-sm border-primary border-2">
+                            <div class="card-header bg-white text-center border-0 pt-4">
+                                <span class="badge bg-primary mb-2">RECOMMENDED</span>
+                                <h3 class="fw-bold">Premium Plan</h3>
+                                <div class="pricing-value">
+                                    <span class="display-4 fw-bold">$5</span>
+                                    <span class="text-muted">/month</span>
+                                </div>
+                                <p class="text-muted">or $50/year (save $10)</p>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled">
+                                    <li class="mb-3">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        <strong>Unlimited PDF summaries</strong>
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        <strong>GPT-4 quality</strong> responses
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        <strong>Downloadable</strong> notes
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Email or Google sign-in
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        <strong>Priority</strong> support
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Advanced customization options
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Bulk processing capabilities
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Early access to new features
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card-footer bg-white text-center border-0 pb-4">
+                                <a href="{{ url_for('upgrade') }}" class="btn btn-primary btn-lg w-100">Upgrade to Premium</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Plan Comparison</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered comparison-table">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col" class="feature-column">Feature</th>
+                        <th scope="col" class="text-center">Free Plan</th>
+                        <th scope="col" class="text-center">Premium Plan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="feature-column"><strong>Monthly Summaries</strong></td>
+                        <td class="text-center">5</td>
+                        <td class="text-center">Unlimited</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-column"><strong>AI Model</strong></td>
+                        <td class="text-center">Standard</td>
+                        <td class="text-center">GPT-4 Quality</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-column"><strong>Summary Length</strong></td>
+                        <td class="text-center">Standard</td>
+                        <td class="text-center">Adjustable</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-column"><strong>Save Summaries</strong></td>
+                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="feature-column"><strong>Note Taking</strong></td>
+                        <td class="text-center">Basic</td>
+                        <td class="text-center">Advanced</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-column"><strong>Download Notes</strong></td>
+                        <td class="text-center"><i class="fas fa-times text-muted"></i></td>
+                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="feature-column"><strong>Customer Support</strong></td>
+                        <td class="text-center">Standard</td>
+                        <td class="text-center">Priority</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-column"><strong>Bulk Processing</strong></td>
+                        <td class="text-center"><i class="fas fa-times text-muted"></i></td>
+                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="feature-column"><strong>Early Access Features</strong></td>
+                        <td class="text-center"><i class="fas fa-times text-muted"></i></td>
+                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-white">
+    <div class="container">
+        <h2 class="text-center mb-5">Frequently Asked Questions</h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion" id="faqAccordion">
+                    <!-- FAQ Item 1 -->
+                    <div class="accordion-item border-0 mb-3 shadow-sm">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                Why do I need to create an account to use the free version?
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Creating an account allows us to save your summaries, track your usage, and provide a personalized experience. It also helps us prevent abuse of our service and ensure fair usage for all users. Your account enables you to access your past summaries from any device and add personal notes to organize your content better.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 2 -->
+                    <div class="accordion-item border-0 mb-3 shadow-sm">
+                        <h2 class="accordion-header" id="headingTwo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                What's the difference between standard and GPT-4 quality summaries?
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Standard summaries provide concise overviews of your PDFs using our basic AI model. GPT-4 quality summaries (Premium plan) deliver more nuanced, comprehensive, and contextually aware summaries with better understanding of complex topics, technical content, and specialized terminology. Premium summaries also offer better retention of critical details and improved readability.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 3 -->
+                    <div class="accordion-item border-0 mb-3 shadow-sm">
+                        <h2 class="accordion-header" id="headingThree">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Can I upgrade or downgrade my plan at any time?
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Yes, you can upgrade to Premium at any time to instantly access all premium features. If you choose to downgrade from Premium to Free, you'll continue to have Premium access until the end of your current billing period. Your saved summaries will remain accessible, but you'll be limited to the Free plan features and summary count afterward.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 4 -->
+                    <div class="accordion-item border-0 mb-3 shadow-sm">
+                        <h2 class="accordion-header" id="headingFour">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                Is my data secure and private?
+                            </button>
+                        </h2>
+                        <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Absolutely. We take data security and privacy seriously. Your PDFs and summaries are encrypted and stored securely. We don't share your content with third parties, and your documents are only used to generate summaries for you. You can delete your summaries and account data at any time from your dashboard.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-primary text-white text-center">
+    <div class="container">
+        <h2 class="mb-4">Ready to get started?</h2>
+        <p class="lead mb-4">Join thousands of users who save time with Summrize.site</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-4">Create Free Account</a>
+            <a href="{{ url_for('upgrade') }}" class="btn btn-outline-light btn-lg px-4">Upgrade to Premium</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

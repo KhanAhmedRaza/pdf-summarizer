@@ -471,3 +471,67 @@ body {
     padding: 1.5rem;
   }
 }
+
+/* Pricing cards */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.pricing-value {
+    margin: 1.5rem 0;
+}
+
+.card-header {
+    padding-top: 2rem;
+}
+
+.card-footer {
+    padding-bottom: 2rem;
+}
+
+/* Feature icons */
+.feature-icon {
+    height: 60px;
+    width: 60px;
+    border-radius: 50%;
+    background-color: rgba(67, 97, 238, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.feature-icon i {
+    color: var(--primary-color);
+}
+
+/* Comparison table */
+.comparison-table {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.comparison-table th, 
+.comparison-table td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.feature-column {
+    width: 40%;
+}
+
+.table-light th {
+    background-color: #f8f9fa;
+    border-bottom: none;
+}
+
+

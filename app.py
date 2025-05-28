@@ -341,6 +341,9 @@ def view_summary(summary_id):
     # Your summary viewing code here
     return render_template('summary.html')
 
+@app.route('/pricing')
+def pricing():
+    return render_template('pricing.html')
 
 
 # API routes for testing
