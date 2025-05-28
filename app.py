@@ -355,6 +355,15 @@ def reset_test_data():
     usage_db.clear()
     
     return jsonify({'status': 'success'})
+    
+@app.before_first_request
+def create_tables():
+    db.create_all()
+    print("Database tables created or confirmed to exist!")
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
+    
+
+
