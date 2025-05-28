@@ -345,6 +345,21 @@ def view_summary(summary_id):
 def pricing():
     return render_template('pricing.html')
 
+@app.route('/upgrade')
+def upgrade():
+    # Check if user is logged in
+    if not current_user.is_authenticated:
+        flash('Please log in to upgrade your account', 'warning')
+        return redirect(url_for('login'))
+    
+    # This is a placeholder for your actual upgrade logic
+    # You would typically:
+    # 1. Show payment options
+    # 2. Process payment
+    # 3. Update user's subscription status in database
+    
+    return render_template('upgrade.html')  # Create this template or use an existing one
+
 
 # API routes for testing
 @app.route('/api/test/reset', methods=['POST'])

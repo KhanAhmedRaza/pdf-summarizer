@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <h2 class="mb-4">Upgrade to Premium</h2>
+                    <p class="lead mb-4">Choose your billing option:</p>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h3>Monthly</h3>
+                                    <p class="display-4 fw-bold">$5</p>
+                                    <p class="text-muted">per month</p>
+                                    <button class="btn btn-primary w-100">Select</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <span class="badge bg-white text-primary">BEST VALUE</span>
+                                </div>
+                                <div class="card-body">
+                                    <h3>Annual</h3>
+                                    <p class="display-4 fw-bold">$50</p>
+                                    <p class="text-muted">per year (save $10)</p>
+                                    <button class="btn btn-primary w-100">Select</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-muted">Secure payment processing. Cancel anytime.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
