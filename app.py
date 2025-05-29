@@ -16,6 +16,8 @@ from flask_migrate import Migrate
 # Import the User model from models
 from extensions import db, migrate, login_manager
 from models.user import User
+from routes import plans_bp
+from pdf_routes import pdf_bp
 
 
 # Configure logging
@@ -50,8 +52,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-
-
+app.register_blueprint(plans_bp, url_prefix='/plans')
+app.register_blueprint(pdf_bp, url_prefix='/pdf')
 
 
 @login_manager.user_loader
@@ -374,6 +376,15 @@ def reset_test_data():
     
     return jsonify({'status': 'success'})
     
+   
+@app.route('/post_login')
+@login_required
+def post_login():
+    intended_plan = session.pop('intended_plan', None)
+    if intended_plan:
+        return redirect(url_for('plans.select_plan', plan_type=intended_plan))
+    return redirect(url_for('dashboard'))
+
 @app.before_first_request
 def create_tables():
     db.create_all()

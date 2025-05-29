@@ -12,3 +12,8 @@ class User(UserMixin, db.Model):
     
     def __repr__(self):
         return f'<User {self.email}>'
+
+ # Plan information
+    plan_type = db.Column(db.String(20), default="free")  # free, starter, pro
+    plan_start_date = db.Column(db.DateTime, default=datetime.utcnow)
+    plan_end_date = db.Column(db.DateTime)
