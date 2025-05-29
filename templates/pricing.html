@@ -3,299 +3,232 @@
 {% block content %}
 <section class="py-5 text-center bg-light">
     <div class="container">
-        <h1 class="display-4 fw-bold">Choose the Perfect Plan for You</h1>
-        <p class="lead text-muted mb-4">Get instant, high-quality summaries of any PDF document</p>
+        <h1 class="display-4 fw-bold">Choose Your Summrize Plan</h1>
+        <p class="lead text-muted">Get high-quality PDF summaries tailored to your needs</p>
     </div>
 </section>
 
-<section class="py-5 bg-white">
-    <div class="container">
-        <div class="row justify-content-center mb-5">
-            <div class="col-md-8">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <h2 class="text-center mb-4">Why Create an Account?</h2>
-                        <p class="text-center mb-4">Even our Free plan requires a simple sign-up. Here's why it's worth it:</p>
-                        
-                        <div class="row mt-4">
-                            <div class="col-md-4 text-center mb-4">
-                                <div class="feature-icon mb-3">
-                                    <i class="fas fa-save fa-2x text-primary"></i>
-                                </div>
-                                <h5>Save Your Summaries</h5>
-                                <p class="text-muted">Access your past summaries anytime, from any device</p>
-                            </div>
-                            <div class="col-md-4 text-center mb-4">
-                                <div class="feature-icon mb-3">
-                                    <i class="fas fa-sticky-note fa-2x text-primary"></i>
-                                </div>
-                                <h5>Personalized Notes</h5>
-                                <p class="text-muted">Add custom notes to your summaries for better organization</p>
-                            </div>
-                            <div class="col-md-4 text-center mb-4">
-                                <div class="feature-icon mb-3">
-                                    <i class="fas fa-chart-line fa-2x text-primary"></i>
-                                </div>
-                                <h5>Usage Tracking</h5>
-                                <p class="text-muted">Monitor your summary count and manage your plan effectively</p>
-                            </div>
-                        </div>
-                        
-                        <div class="text-center mt-3">
-                            <a href="#pricing" class="btn btn-primary btn-lg">See Our Plans</a>
-                        </div>
+<main class="container py-5">
+    <div class="row mb-5">
+        <!-- Free Plan -->
+        <div class="col-md-4 mb-4 mb-md-0">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-white text-center">
+                    <h3 class="fw-bold">Free Plan</h3>
+                    <div class="pricing-value">
+                        <span class="display-4 fw-bold">$0</span>
                     </div>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>5 PDF summaries</strong> per month
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Uses GPT-3.5
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Basic output format (plain text)
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Supports academic and business documents
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-times text-muted me-2"></i>
+                            No support
+                        </li>
+                    </ul>
+                    <div class="alert alert-warning small mt-3">
+                        <strong>Fair Usage Notice:</strong>
+                        <p class="mb-0">To ensure sustainability and performance for all users, document size is limited to: <strong>10 pages max</strong></p>
+                    </div>
+                </div>
+                <div class="card-footer bg-white text-center">
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-lg w-100">Try Free</a>
                 </div>
             </div>
         </div>
-
-        <div class="row justify-content-center" id="pricing">
-            <div class="col-lg-12">
-                <div class="row">
-                    <!-- Free Plan -->
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 border-0 shadow-sm">
-                            <div class="card-header bg-white text-center border-0 pt-4">
-                                <h3 class="fw-bold">Free Plan</h3>
-                                <div class="pricing-value">
-                                    <span class="display-4 fw-bold">$0</span>
-                                    <span class="text-muted">/month</span>
-                                </div>
-                                <p class="text-muted">No credit card required</p>
-                            </div>
-                            <div class="card-body">
-                                <ul class="list-unstyled">
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        <strong>5 PDF summaries</strong> per month
-                                    </li>
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        Basic summaries + notes
-                                    </li>
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        GPT-3.5 (fast mode)
-                                    </li>
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        Email or Google sign-in
-                                    </li>
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        Standard support
-                                    </li>
-                                    <li class="mb-3 text-muted">
-                                        <i class="fas fa-times text-muted me-2"></i>
-                                        Downloadable notes
-                                    </li>
-                                    <li class="mb-3 text-muted">
-                                        <i class="fas fa-times text-muted me-2"></i>
-                                        Priority support
-                                    </li>
-                                    <li class="mb-3 text-muted">
-                                        <i class="fas fa-times text-muted me-2"></i>
-                                        Advanced features
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="card-footer bg-white text-center border-0 pb-4">
-                                <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-lg w-100">Create Free Account</a>
-                            </div>
-                        </div>
+        
+        <!-- Starter Plan -->
+        <div class="col-md-4 mb-4 mb-md-0">
+            <div class="card h-100 shadow-sm border-primary">
+                <div class="card-header bg-white text-center position-relative">
+                    <span class="badge bg-primary position-absolute top-0 start-50 translate-middle">MOST POPULAR</span>
+                    <h3 class="fw-bold">Starter Plan</h3>
+                    <div class="pricing-value">
+                        <span class="display-4 fw-bold">$5</span>
+                        <span class="text-muted">/month</span>
                     </div>
-                    
-                    <!-- Starter Plan -->
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 border-0 shadow-sm border-primary border-2">
-                            <div class="card-header bg-white text-center border-0 pt-4">
-                                <span class="badge bg-primary mb-2">MOST POPULAR</span>
-                                <h3 class="fw-bold">Starter Plan</h3>
-                                <div class="pricing-value">
-                                    <span class="display-4 fw-bold">$5</span>
-                                    <span class="text-muted">/month</span>
-                                </div>
-                                <p class="text-muted">or $50/year (save $10)</p>
-                            </div>
-                            <div class="card-body">
-                                <ul class="list-unstyled">
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        <strong>Up to 50 PDFs</strong> per month
-                                    </li>
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        <strong>GPT-4 quality</strong> summaries
-                                    </li>
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        <strong>Downloadable</strong> notes
-                                    </li>
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        Email or Google sign-in
-                                    </li>
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        <strong>Priority</strong> email support
-                                    </li>
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        Advanced customization options
-                                    </li>
-                                    <li class="mb-3 text-muted">
-                                        <i class="fas fa-times text-muted me-2"></i>
-                                        Export to audio/Word
-                                    </li>
-                                    <li class="mb-3 text-muted">
-                                        <i class="fas fa-times text-muted me-2"></i>
-                                        Chat with your PDF
-                                    </li>
-                                </ul>
-                                <p class="text-muted small mt-3 fst-italic">Fair usage policy applies to ensure high quality for all users. Unused summaries reset monthly.</p>
-                            </div>
-                            <div class="card-footer bg-white text-center border-0 pb-4">
-                                <a href="{{ url_for('upgrade') }}" class="btn btn-primary btn-lg w-100">Upgrade to Starter</a>
-                            </div>
-                        </div>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Up to 30 PDFs</strong>/month
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Uses GPT-4 quality summaries
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Access to:
+                        </li>
+                        <li class="mb-3 ms-4">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Academic, business, and legal documents
+                        </li>
+                        <li class="mb-3 ms-4">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Interactive and action-item output formats
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Daily limit: Up to 100,000 tokens/day (≈150 pages total)
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Priority support
+                        </li>
+                    </ul>
+                    <div class="alert alert-warning small mt-3">
+                        <strong>Fair Usage Notice:</strong>
+                        <p class="mb-0">To ensure sustainability and performance for all users, document size is limited to: <strong>20 pages max per document</strong></p>
+                        <p class="mb-0 mt-2">Token usage is also monitored. For book-length or enterprise-level documents, contact us for a custom plan.</p>
                     </div>
-                    
-                    <!-- Pro Plan -->
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 border-0 shadow-sm">
-                            <div class="card-header bg-white text-center border-0 pt-4">
-                                <span class="badge bg-dark mb-2">POWER USERS</span>
-                                <h3 class="fw-bold">Pro Plan</h3>
-                                <div class="pricing-value">
-                                    <span class="display-4 fw-bold">$15</span>
-                                    <span class="text-muted">/month</span>
-                                </div>
-                                <p class="text-muted">or $150/year (save $30)</p>
-                            </div>
-                            <div class="card-body">
-                                <ul class="list-unstyled">
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        <strong>Up to 200 PDFs</strong> per month
-                                    </li>
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        <strong>GPT-4 + bonus features</strong>
-                                    </li>
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        <strong>Export to audio, Word</strong> & more
-                                    </li>
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        <strong>Chat with your PDF</strong> (coming soon)
-                                    </li>
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        <strong>Faster queue</strong> processing
-                                    </li>
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        <strong>Priority</strong> support
-                                    </li>
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        Advanced customization options
-                                    </li>
-                                    <li class="mb-3">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        Early access to new features
-                                    </li>
-                                </ul>
-                                <p class="text-muted small mt-3 fst-italic">Fair usage policy applies to ensure high quality for all users. Unused summaries reset monthly.</p>
-                            </div>
-                            <div class="card-footer bg-white text-center border-0 pb-4">
-                                <a href="{{ url_for('upgrade') }}?plan=pro" class="btn btn-outline-dark btn-lg w-100">Go Pro</a>
-                            </div>
-                        </div>
+                </div>
+                <div class="card-footer bg-white text-center">
+                    <a href="{{ url_for('upgrade') }}" class="btn btn-primary btn-lg w-100">Upgrade</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pro Plan -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-white text-center">
+                    <h3 class="fw-bold">Pro Plan</h3>
+                    <div class="pricing-value">
+                        <span class="display-4 fw-bold">$15</span>
+                        <span class="text-muted">/month</span>
                     </div>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Up to 100 PDFs</strong>/month
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Uses GPT-4 with enhanced processing
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-check text-success me-2"></i>
+                            All features in Starter, plus:
+                        </li>
+                        <li class="mb-3 ms-4">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Visual summary formats (e.g., flowchart-style)
+                        </li>
+                        <li class="mb-3 ms-4">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Industry-specific support (healthcare, finance, tech)
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Fastest processing priority
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Access to the Summrize user community
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Daily limit: Up to 300,000 tokens/day (≈450 pages total)
+                        </li>
+                    </ul>
+                    <div class="alert alert-warning small mt-3">
+                        <strong>Fair Usage Notice:</strong>
+                        <p class="mb-0">To ensure sustainability and performance for all users, document size is limited to: <strong>30 pages max per document</strong></p>
+                        <p class="mb-0 mt-2">Token usage is also monitored. For book-length or enterprise-level documents, contact us for a custom plan.</p>
+                    </div>
+                </div>
+                <div class="card-footer bg-white text-center">
+                    <a href="{{ url_for('upgrade') }}?plan=pro" class="btn btn-outline-primary btn-lg w-100">Upgrade</a>
                 </div>
             </div>
         </div>
     </div>
-</section>
-
-<section class="py-5 bg-light">
-    <div class="container">
-        <h2 class="text-center mb-5">Plan Comparison</h2>
+    
+    <!-- Comparison Table -->
+    <div class="mt-5 pt-5">
+        <h2 class="text-center mb-4">Plan Comparison</h2>
         <div class="table-responsive">
             <table class="table table-bordered comparison-table">
                 <thead class="table-light">
                     <tr>
                         <th scope="col" class="feature-column">Feature</th>
-                        <th scope="col" class="text-center">Free Plan</th>
-                        <th scope="col" class="text-center bg-primary bg-opacity-10">Starter Plan</th>
-                        <th scope="col" class="text-center">Pro Plan</th>
+                        <th scope="col" class="text-center">Free</th>
+                        <th scope="col" class="text-center bg-primary bg-opacity-10">Starter</th>
+                        <th scope="col" class="text-center">Pro</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="feature-column"><strong>Monthly Summaries</strong></td>
+                        <td class="feature-column"><strong>Monthly PDF Summaries</strong></td>
                         <td class="text-center">5</td>
                         <td class="text-center bg-primary bg-opacity-10">Up to 50</td>
                         <td class="text-center">Up to 200</td>
                     </tr>
                     <tr>
                         <td class="feature-column"><strong>AI Model</strong></td>
-                        <td class="text-center">GPT-3.5 (Fast)</td>
+                        <td class="text-center">GPT-3.5</td>
                         <td class="text-center bg-primary bg-opacity-10">GPT-4</td>
                         <td class="text-center">GPT-4 Enhanced</td>
                     </tr>
                     <tr>
-                        <td class="feature-column"><strong>Summary Quality</strong></td>
-                        <td class="text-center">Basic</td>
-                        <td class="text-center bg-primary bg-opacity-10">Premium</td>
-                        <td class="text-center">Premium+</td>
+                        <td class="feature-column"><strong>Output Format</strong></td>
+                        <td class="text-center">Plain text</td>
+                        <td class="text-center bg-primary bg-opacity-10">Interactive & action-item</td>
+                        <td class="text-center">Interactive, action-item & visual</td>
                     </tr>
                     <tr>
-                        <td class="feature-column"><strong>Save Summaries</strong></td>
-                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
-                        <td class="text-center bg-primary bg-opacity-10"><i class="fas fa-check text-success"></i></td>
-                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                        <td class="feature-column"><strong>Document Types</strong></td>
+                        <td class="text-center">Academic & business</td>
+                        <td class="text-center bg-primary bg-opacity-10">Academic, business & legal</td>
+                        <td class="text-center">All types + industry-specific</td>
                     </tr>
                     <tr>
-                        <td class="feature-column"><strong>Note Taking</strong></td>
-                        <td class="text-center">Basic</td>
-                        <td class="text-center bg-primary bg-opacity-10">Advanced</td>
-                        <td class="text-center">Advanced</td>
+                        <td class="feature-column"><strong>Max Pages per Document</strong></td>
+                        <td class="text-center">10</td>
+                        <td class="text-center bg-primary bg-opacity-10">30</td>
+                        <td class="text-center">30</td>
                     </tr>
                     <tr>
-                        <td class="feature-column"><strong>Download Notes</strong></td>
-                        <td class="text-center"><i class="fas fa-times text-muted"></i></td>
-                        <td class="text-center bg-primary bg-opacity-10"><i class="fas fa-check text-success"></i></td>
-                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                        <td class="feature-column"><strong>Daily Token Limit</strong></td>
+                        <td class="text-center">Limited</td>
+                        <td class="text-center bg-primary bg-opacity-10">100,000 (≈150 pages)</td>
+                        <td class="text-center">300,000 (≈450 pages)</td>
                     </tr>
                     <tr>
-                        <td class="feature-column"><strong>Export Formats</strong></td>
+                        <td class="feature-column"><strong>Support</strong></td>
                         <td class="text-center">None</td>
-                        <td class="text-center bg-primary bg-opacity-10">PDF</td>
-                        <td class="text-center">PDF, Word, Audio</td>
+                        <td class="text-center bg-primary bg-opacity-10">Priority</td>
+                        <td class="text-center">Priority + Industry-specific</td>
                     </tr>
                     <tr>
-                        <td class="feature-column"><strong>Chat with PDF</strong></td>
-                        <td class="text-center"><i class="fas fa-times text-muted"></i></td>
-                        <td class="text-center bg-primary bg-opacity-10"><i class="fas fa-times text-muted"></i></td>
-                        <td class="text-center"><i class="fas fa-check text-success"></i> (Coming soon)</td>
-                    </tr>
-                    <tr>
-                        <td class="feature-column"><strong>Processing Speed</strong></td>
+                        <td class="feature-column"><strong>Processing Priority</strong></td>
                         <td class="text-center">Standard</td>
-                        <td class="text-center bg-primary bg-opacity-10">Standard</td>
-                        <td class="text-center">Priority Queue</td>
+                        <td class="text-center bg-primary bg-opacity-10">Enhanced</td>
+                        <td class="text-center">Fastest</td>
                     </tr>
                     <tr>
-                        <td class="feature-column"><strong>Customer Support</strong></td>
-                        <td class="text-center">Standard</td>
-                        <td class="text-center bg-primary bg-opacity-10">Priority Email</td>
-                        <td class="text-center">Priority Support</td>
-                    </tr>
-                    <tr>
-                        <td class="feature-column"><strong>Early Access Features</strong></td>
+                        <td class="feature-column"><strong>User Community Access</strong></td>
                         <td class="text-center"><i class="fas fa-times text-muted"></i></td>
                         <td class="text-center bg-primary bg-opacity-10"><i class="fas fa-times text-muted"></i></td>
                         <td class="text-center"><i class="fas fa-check text-success"></i></td>
@@ -304,92 +237,34 @@
             </table>
         </div>
     </div>
-</section>
-
-<section class="py-5 bg-white">
-    <div class="container">
-        <h2 class="text-center mb-5">Frequently Asked Questions</h2>
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="accordion" id="faqAccordion">
-                    <!-- FAQ Item 1 -->
-                    <div class="accordion-item border-0 mb-3 shadow-sm">
-                        <h2 class="accordion-header" id="headingOne">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                                Why do I need to create an account to use the free version?
-                            </button>
-                        </h2>
-                        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                Creating an account allows us to save your summaries, track your usage, and provide a personalized experience. It also helps us prevent abuse of our service and ensure fair usage for all users. Your account enables you to access your past summaries from any device and add personal notes to organize your content better.
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- FAQ Item 2 -->
-                    <div class="accordion-item border-0 mb-3 shadow-sm">
-                        <h2 class="accordion-header" id="headingTwo">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                What's the difference between the AI models used in each plan?
-                            </button>
-                        </h2>
-                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                <p><strong>Free Plan (GPT-3.5):</strong> Provides concise, basic summaries with good accuracy for general content.</p>
-                                <p><strong>Starter Plan (GPT-4):</strong> Delivers more nuanced, comprehensive summaries with better understanding of complex topics, technical content, and specialized terminology.</p>
-                                <p><strong>Pro Plan (GPT-4 Enhanced):</strong> Offers the highest quality summaries with additional processing for maximum accuracy, better retention of critical details, and improved readability, plus access to bonus features like audio export and PDF chat.</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- FAQ Item 3 -->
-                    <div class="accordion-item border-0 mb-3 shadow-sm">
-                        <h2 class="accordion-header" id="headingThree">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                What does "fair usage policy" mean for the paid plans?
-                            </button>
-                        </h2>
-                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                Our fair usage policy ensures that all users receive consistent, high-quality service. While we provide generous monthly limits (50 PDFs for Starter, 200 for Pro), we may apply additional restrictions for unusually large documents or excessive usage patterns that impact our system performance. Unused summaries don't roll over to the next month. This policy helps us maintain optimal service quality while keeping our prices affordable.
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- FAQ Item 4 -->
-                    <div class="accordion-item border-0 mb-3 shadow-sm">
-                        <h2 class="accordion-header" id="headingFour">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                                Can I upgrade or downgrade my plan at any time?
-                            </button>
-                        </h2>
-                        <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                Yes, you can upgrade or downgrade your plan at any time from your account settings. When upgrading, the new features will be available immediately. When downgrading, your current plan will remain active until the end of your billing cycle, then switch to the new plan. For annual subscriptions, you can upgrade anytime, but downgrades will take effect at renewal.
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    
+    <!-- Fair Usage Policy -->
+    <div class="mt-5 pt-3">
+        <div class="card border-warning">
+            <div class="card-body">
+                <h3 class="card-title">⚠️ Fair Usage Policy</h3>
+                <p class="card-text">To ensure sustainability and performance for all users, document size is limited to:</p>
+                <ul>
+                    <li><strong>Free:</strong> 10 pages max</li>
+                    <li><strong>Starter:</strong> 20 pages max per document</li>
+                    <li><strong>Pro:</strong> 30 pages max per document</li>
+                </ul>
+                <p class="card-text">Token usage is also monitored (e.g., Pro: 300K/day). For book-length or enterprise-level documents, contact us for a custom plan.</p>
             </div>
         </div>
     </div>
-</section>
-
-<section class="py-5 bg-light">
-    <div class="container text-center">
+    
+    <!-- CTA Section -->
+    <div class="text-center mt-5 pt-3">
         <h2 class="mb-4">Ready to Get Started?</h2>
-        <p class="lead mb-5">Choose the plan that's right for you and start summarizing your PDFs today.</p>
         <div class="row justify-content-center">
             <div class="col-md-4 mb-3">
-                <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-lg px-4">Create Free Account</a>
+                <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-lg px-4 w-100">Try Free</a>
             </div>
             <div class="col-md-4 mb-3">
-                <a href="{{ url_for('upgrade') }}" class="btn btn-primary btn-lg px-4">Upgrade to Starter</a>
-            </div>
-            <div class="col-md-4 mb-3">
-                <a href="{{ url_for('upgrade') }}?plan=pro" class="btn btn-outline-dark btn-lg px-4">Go Pro</a>
+                <a href="{{ url_for('upgrade') }}" class="btn btn-primary btn-lg px-4 w-100">Upgrade</a>
             </div>
         </div>
     </div>
-</section>
+</main>
 {% endblock %}
