@@ -55,15 +55,18 @@
         
         <!-- Starter Plan -->
         <div class="col-md-4 mb-4 mb-md-0">
-            <div class="card h-100 shadow-sm border-primary">
-                <div class="card-header bg-white text-center position-relative">
-                    <span class="badge bg-primary position-absolute top-0 start-50 translate-middle">MOST POPULAR</span>
-                    <h3 class="fw-bold">Starter Plan</h3>
-                    <div class="pricing-value">
-                        <span class="display-4 fw-bold">$5</span>
-                        <span class="text-muted">/month</span>
-                    </div>
-                </div>
+			<div class="card h-100 shadow-sm border-primary">
+				<!-- Fixed badge positioning -->
+				<div class="text-center" style="position: relative; height: 0; z-index: 1;">
+					<span class="badge bg-primary" style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); padding: 8px 16px; font-size: 0.8rem; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">MOST POPULAR</span>
+				</div>
+				<div class="card-header bg-white text-center pt-4">
+					<h3 class="fw-bold mt-2">Starter Plan</h3>
+					<div class="pricing-value">
+						<span class="display-4 fw-bold">$5</span>
+						<span class="text-muted">/month</span>
+					</div>
+				</div>
                 <div class="card-body">
                     <ul class="list-unstyled">
                         <li class="mb-3">
