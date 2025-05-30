@@ -15,7 +15,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 # Import the User model from models
 from extensions import db, migrate, login_manager
-from models.user import User
+from models import  User
 from routes import plans_bp
 from pdf_routes import pdf_bp
 

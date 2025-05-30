@@ -1,2 +1,8 @@
-# This file will be empty for now, as we'll initialize the database in the app.py file
-# We'll import models from here in the future if needed
+from models.db import db
+from models.user import User
+from models.usage import MonthlyUsage, Upload
+
+# This file ensures proper imports for the models package
+# Import this file to get access to all models
+
+__all__ = ['db', 'User', 'MonthlyUsage', 'Upload']

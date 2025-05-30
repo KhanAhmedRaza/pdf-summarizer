@@ -1,8 +1,8 @@
 from flask import Blueprint, redirect, url_for, flash, render_template, request, session
 from flask_login import login_required, current_user
 from datetime import datetime, timedelta
-from models.usage import db, MonthlyUsage, Upload
-from models.user import User
+from models import db, User, MonthlyUsage, Upload
+
 
 # Create blueprint
 plans_bp = Blueprint('plans', __name__)
