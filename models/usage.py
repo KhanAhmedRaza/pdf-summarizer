@@ -5,7 +5,7 @@ from extensions import db
 
 class MonthlyUsage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
     month_start = db.Column(db.DateTime, nullable=False)
     month_end = db.Column(db.DateTime, nullable=False)
     pdf_count = db.Column(db.Integer, default=0)
@@ -41,7 +41,7 @@ class MonthlyUsage(db.Model):
 
 class Upload(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
     filename = db.Column(db.String(255), nullable=False)
     page_count = db.Column(db.Integer, nullable=False)
     token_count = db.Column(db.Integer, default=0)

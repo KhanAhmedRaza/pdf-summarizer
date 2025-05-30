@@ -18,6 +18,8 @@ from extensions import db, migrate, login_manager
 from models import  User
 from routes import plans_bp
 from pdf_routes import pdf_bp
+from flask_migrate import upgrade as db_upgrade
+
 
 
 # Configure logging
@@ -55,7 +57,20 @@ login_manager.login_view = 'login'
 app.register_blueprint(plans_bp, url_prefix='/plans')
 app.register_blueprint(pdf_bp, url_prefix='/pdf')
 
-
+@app.route('/manage/migrate', methods=['GET'])
+def run_migration():
+    # Add some basic security (like an admin check or secret token)
+    if request.args.get('token') != os.environ.get('MIGRATION_SECRET_TOKEN'):
+        return "Unauthorized", 401
+        
+    # Import Flask-Migrate's upgrade function
+    from flask_migrate import upgrade
+    
+    # Run the migration
+    db_upgrade()
+    
+    return "Migration completed successfully"
+    
 @login_manager.user_loader
 def load_user(user_id):
     # Load user directly from the database using SQLAlchemy
@@ -361,6 +376,7 @@ def upgrade():
     # 3. Update user's subscription status in database
     
     return render_template('upgrade.html')  # Create this template or use an existing one
+
 
 
 # API routes for testing
