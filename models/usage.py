@@ -1,5 +1,7 @@
 from datetime import datetime
-from models.db import db
+# In models/user.py and models/usage.py
+from extensions import db
+
 
 class MonthlyUsage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
