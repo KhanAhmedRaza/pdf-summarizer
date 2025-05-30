@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 # Import db from your existing setup
 # This assumes you have a db.py or similar that initializes SQLAlchemy
-from models.db import db
+from extensions import db
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
