@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Subscribe to {{ plan|capitalize }} Plan</h1>
+    
+    <div class="card my-4">
+        <div class="card-body">
+            <h5 class="card-title">{{ plan|capitalize }} Plan Details</h5>
+            
+            {% if plan == 'starter' %}
+                <p>$5/month - Up to 50 PDFs/month with GPT-4 quality</p>
+                <ul>
+                    <li>Access to academic, business, and legal documents</li>
+                    <li>Interactive and action-item output formats</li>
+                    <li>Daily limit: Up to 100,000 tokens/day (≈150 pages total)</li>
+                    <li>Priority support</li>
+                </ul>
+            {% elif plan == 'pro' %}
+                <p>$15/month - Up to 100 PDFs/month with enhanced GPT-4 processing</p>
+                <ul>
+                    <li>All features in Starter, plus:</li>
+                    <li>Visual summary formats (e.g., flowchart-style)</li>
+                    <li>Industry-specific support (healthcare, finance, tech)</li>
+                    <li>Fastest processing priority</li>
+                    <li>Access to the Summrize user community</li>
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+    
+    <form action="{{ url_for('plans.process_payment', plan_type=plan) }}" method="post">
+        <!-- Mock payment form for testing -->
+        <div class="form-group">
+            <label for="card_number">Card Number</label>
+            <input type="text" class="form-control" id="card_number" name="card_number" value="4242424242424242">
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="expiry">Expiry (MM/YY)</label>
+                <input type="text" class="form-control" id="expiry" name="expiry" value="12/25">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="cvc">CVC</label>
+                <input type="text" class="form-control" id="cvc" name="cvc" value="123">
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Subscribe Now</button>
+    </form>
+</div>
+{% endblock %}

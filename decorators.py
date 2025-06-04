@@ -4,6 +4,8 @@ from flask_login import current_user
 import os
 from werkzeug.utils import secure_filename
 from models import db, Upload, MonthlyUsage
+import tempfile
+
 
 def plan_required(min_plan_level):
     """
@@ -43,7 +45,11 @@ def feature_required(feature_name):
             if not current_user.is_authenticated:
                 return redirect(url_for('login'))
             
-            if not current_user.can_access_feature(feature_name):
+            # For API requests or when testing
+            if request.is_xhr or request.headers.get('X-Test-Request'):
+                return {"error": "Feature not available on your plan"}, 403
+            # For normal browser requests
+            else:
                 flash(f"This feature is not available on your current plan.", "warning")
                 return redirect(url_for('pricing'))
                 
@@ -92,8 +98,9 @@ def check_page_limit(f):
             return redirect(request.url)
             
         # Save file temporarily to check page count
+        temp_dir = tempfile.gettempdir()
         filename = secure_filename(file.filename)
-        temp_path = os.path.join('/tmp', filename)
+        temp_path = os.path.join(temp_dir, filename)
         file.save(temp_path)
         
         # Get page count (using PyPDF2 or similar library)

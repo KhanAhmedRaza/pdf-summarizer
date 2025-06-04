@@ -158,7 +158,7 @@ def test_free_user_model_selection(mock_check_page_limit, app, login_as_free, fr
     mock_check_page_limit.side_effect = lambda f: setattr(f, 'page_count', 10)
     
     # Mock the AI model selection
-    with patch('models.user.User.get_ai_model') as mock_get_model:
+    with patch('models.User.get_ai_model') as mock_get_model:
         mock_get_model.return_value = "gpt-3.5-turbo"
         
         with open(mock_pdf_file, 'rb') as pdf:
@@ -186,7 +186,7 @@ def test_starter_user_model_selection(mock_check_page_limit, app, login_as_start
     mock_check_page_limit.side_effect = lambda f: setattr(f, 'page_count', 10)
     
     # Mock the AI model selection
-    with patch('models.user.User.get_ai_model') as mock_get_model:
+    with patch('models.User.get_ai_model') as mock_get_model:
         mock_get_model.return_value = "gpt-4"
         
         with open(mock_pdf_file, 'rb') as pdf:
@@ -214,7 +214,7 @@ def test_pro_user_model_selection(mock_check_page_limit, app, login_as_pro, pro_
     mock_check_page_limit.side_effect = lambda f: setattr(f, 'page_count', 20)
     
     # Mock the AI model selection
-    with patch('models.user.User.get_ai_model') as mock_get_model:
+    with patch('models.User.get_ai_model') as mock_get_model:
         mock_get_model.return_value = "gpt-4"
         
         with open(mock_pdf_file, 'rb') as pdf:

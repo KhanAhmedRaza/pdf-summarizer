@@ -1,6 +1,6 @@
 import pytest
 from flask import Flask
-from flask_login import LoginManager, login_user
+from flask_login import LoginManager, login_user, login_required, current_user
 import os
 import sys
 import tempfile
@@ -8,10 +8,10 @@ import tempfile
 # Add the parent directory to sys.path to import app modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from models.db import db
-from models.user import User
-from models.usage import MonthlyUsage, Upload
-from extensions import login_manager
+
+from models import User
+from models import MonthlyUsage, Upload
+from extensions import login_manager, db
 
 @pytest.fixture
 def app():
@@ -19,6 +19,7 @@ def app():
     app = Flask(__name__)
     app.config['TESTING'] = True
     app.config['SECRET_KEY'] = 'test-key'
+    app.config['LOGIN_DISABLED'] = False  # Make sure login is not disabled
     
     # Use in-memory SQLite for testing
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
@@ -27,6 +28,14 @@ def app():
     # Initialize extensions
     db.init_app(app)
     login_manager.init_app(app)
+    
+    # Configure login_manager
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(user_id)
+    
+    # Make db accessible via app.db for test convenience
+    app.db = db
     
     # Import and register blueprints
     from routes import plans_bp
@@ -38,16 +47,36 @@ def app():
     
     # Create a test route for checking plan-specific features
     @app.route('/test/features/<feature>')
-    @login_required
     def test_feature_access(feature):
+        # Add debug prints at the beginning of this function
+        from flask_login import current_user
+        print(f"Route - Current user authenticated: {current_user.is_authenticated}")
+        print(f"Route - Current user ID: {current_user.id if current_user.is_authenticated else 'None'}")
+        print(f"Route - Current user plan: {current_user.plan_type if current_user.is_authenticated else 'None'}")
+        
+        if not current_user.is_authenticated:
+            return "Unauthorized", 401
+            
         if not current_user.can_access_feature(feature):
             return {"error": "Feature not available on your plan"}, 403
         return {"success": True, "feature": feature}, 200
     
+    # Add a login route for testing
+    @app.route('/login')
+    def login():
+        return "Login Page", 200
+    
+    # Add PDF upload route for testing if not in blueprint
+    @app.route('/pdf/upload', methods=['GET', 'POST'])
+    def pdf_upload_test():
+        if not current_user.is_authenticated:
+            return "Redirect to login", 302
+        return "Upload page", 200
+    
     # Create a context for the app
     with app.app_context():
         # Create all database tables
-        db.create_all()
+        db.create_all()  # Ensure tables are created
         yield app
         # Clean up after the test
         db.session.remove()
@@ -73,77 +102,169 @@ def auth_client(app, client):
     return client
 
 @pytest.fixture
-def free_user(app):
-    """Create a free plan user."""
-    user = User(
-        id="free-user-id",
-        email="free@example.com",
-        name="Free User",
-        plan_type="free"
-    )
-    db.session.add(user)
-    db.session.commit()
-    return user
+def free_user(app, db_session):
+    with app.app_context():
+        user = User(
+            id="free-user-id",
+            email="free@example.com",
+            name="Free User",
+            plan_type="free"
+        )
+        db_session.add(user)
+        db_session.commit()
+        # Ensure the user is attached to the session
+        db_session.refresh(user)
+        return user
+
 
 @pytest.fixture
-def starter_user(app):
+def starter_user(app, db_session):
     """Create a starter plan user."""
-    user = User(
-        id="starter-user-id",
-        email="starter@example.com",
-        name="Starter User",
-        plan_type="starter"
-    )
-    db.session.add(user)
-    db.session.commit()
-    return user
+    with app.app_context():
+        user = User(
+            id="starter-user-id",
+            email="starter@example.com",
+            name="Starter User",
+            plan_type="starter"
+        )
+        db_session.add(user)
+        db_session.commit()
+        # Ensure the user is attached to the session
+        db_session.refresh(user)
+        return user
 
 @pytest.fixture
-def pro_user(app):
+def pro_user(app, db_session):
     """Create a pro plan user."""
-    user = User(
-        id="pro-user-id",
-        email="pro@example.com",
-        name="Pro User",
-        plan_type="pro"
-    )
-    db.session.add(user)
-    db.session.commit()
-    return user
+    with app.app_context():
+        user = User(
+            id="pro-user-id",
+            email="pro@example.com",
+            name="Pro User",
+            plan_type="pro"
+        )
+        db_session.add(user)
+        db_session.commit()
+        # Ensure the user is attached to the session
+        db_session.refresh(user)
+        return user
 
 @pytest.fixture
-def login_as_free(auth_client, free_user):
+def login_as_free(app, client, free_user):
     """Log in as a free user."""
-    with auth_client.session_transaction() as session:
+    with app.app_context():
+        # Refresh the user to ensure it's attached to the current session
+        free_user = db.session.merge(free_user)
+        
+        with app.test_request_context():
+            login_user(free_user)
+            app.preprocess_request()
+            
+            # Verify current_user is set
+            assert current_user.is_authenticated
+            assert current_user.id == free_user.id
+    
+    # Set session cookies for the test client
+    with client.session_transaction() as session:
         session['user_id'] = free_user.id
         session['_fresh'] = True
-    return auth_client
+        session['_id'] = 'test-session-id'
+        session['_user_id'] = free_user.id
+    
+    return client
+
 
 @pytest.fixture
-def login_as_starter(auth_client, starter_user):
+def login_as_starter(app, client, starter_user):
     """Log in as a starter user."""
-    with auth_client.session_transaction() as session:
+    # Properly authenticate the user in the Flask-Login system
+    with app.test_request_context():
+        login_user(starter_user)
+        # Process the request to set current_user
+        app.preprocess_request()
+        
+        # Verify current_user is set
+        assert current_user.is_authenticated
+        assert current_user.id == starter_user.id
+    
+    # Set session cookies for the test client
+    with client.session_transaction() as session:
         session['user_id'] = starter_user.id
         session['_fresh'] = True
-    return auth_client
+        session['_id'] = 'test-session-id'
+        session['_user_id'] = starter_user.id
+    
+    return client
 
 @pytest.fixture
-def login_as_pro(auth_client, pro_user):
+def login_as_pro(app, client, pro_user):
     """Log in as a pro user."""
-    with auth_client.session_transaction() as session:
+    # Properly authenticate the user in the Flask-Login system
+    with app.test_request_context():
+        login_user(pro_user)
+        # Process the request to set current_user
+        app.preprocess_request()
+        
+        # Verify current_user is set
+        assert current_user.is_authenticated
+        assert current_user.id == pro_user.id
+    
+    # Set session cookies for the test client
+    with client.session_transaction() as session:
         session['user_id'] = pro_user.id
         session['_fresh'] = True
-    return auth_client
+        session['_id'] = 'test-session-id'
+        session['_user_id'] = pro_user.id
+    
+    return client
 
 @pytest.fixture
 def mock_pdf_file():
-    """Create a mock PDF file for testing."""
-    with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as f:
-        f.write(b'%PDF-1.5\n%Test PDF file for testing')
-        temp_file_path = f.name
+    """Use an existing PDF file for testing."""
+    import os
     
-    yield temp_file_path
+    # Path to your existing PDF file
+    pdf_path = r"C:\usr\doc\test.pdf"  # Use raw string for Windows path
     
-    # Clean up the file after the test
-    if os.path.exists(temp_file_path):
-        os.unlink(temp_file_path)
+    # Verify the file exists
+    if not os.path.exists(pdf_path):
+        raise FileNotFoundError(f"Test PDF file not found at {pdf_path}")
+    
+    # Return the path to the existing file
+    yield pdf_path
+    
+    # No cleanup needed since we're using an existing file
+
+
+        
+@pytest.fixture(scope="function")
+def db_session(app):
+    """Provide a database session for testing."""
+    with app.app_context():
+        connection = db.engine.connect()
+        transaction = connection.begin()
+        
+        session = db.scoped_session(
+            db.sessionmaker(bind=connection)
+        )
+        db.session = session
+        
+        yield session
+        
+        session.close()
+        transaction.rollback()
+        connection.close()
+
+
+def test_user_plan_tagging(app, free_user, starter_user, pro_user):
+    """Test that users can be tagged with different plans."""
+    with app.app_context():
+        # Refresh users from database to ensure they're attached to the session
+        free_user = db.session.merge(free_user)
+        starter_user = db.session.merge(starter_user)
+        pro_user = db.session.merge(pro_user)
+        
+        # Now verify plan types
+        assert free_user.plan_type == "free"
+        assert starter_user.plan_type == "starter"
+        assert pro_user.plan_type == "pro"

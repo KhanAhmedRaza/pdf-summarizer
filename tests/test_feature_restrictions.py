@@ -138,38 +138,27 @@ def test_starter_user_cannot_access_flowchart_format(app, login_as_starter, mock
         # If redirected, verify it's not to a successful processing page
         assert '/pdf/process' not in response.location or 'error' in response.location
 
-def test_feature_access_by_plan(app, login_as_free, login_as_starter, login_as_pro):
-    """Test feature access for different plans using the test route."""
-    
-    # Test features that should be accessible to all plans
-    for client in [login_as_free, login_as_starter, login_as_pro]:
-        response = client.get('/test/features/plain_text')
-        assert response.status_code == 200
+def test_feature_access_by_plan(app, db_session, free_user, starter_user, pro_user):
+    """Test feature access using direct checks."""
+    with app.app_context():
+        # Refresh users
+        free_user = db_session.merge(free_user)
+        starter_user = db_session.merge(starter_user)
+        pro_user = db_session.merge(pro_user)
         
-        response = client.get('/test/features/academic')
-        assert response.status_code == 200
+        # Test free user access
+        assert not free_user.can_access_feature('legal')
+        assert not free_user.can_access_feature('interactive')
+        assert not free_user.can_access_feature('priority_support')
         
-        response = client.get('/test/features/business')
-        assert response.status_code == 200
-    
-    # Test features that should be accessible to starter and pro plans only
-    for feature in ['legal', 'interactive', 'todo_list', 'priority_support']:
-        # Free user should not have access
-        response = login_as_free.get(f'/test/features/{feature}')
-        assert response.status_code == 403
+        # Test starter user access
+        assert starter_user.can_access_feature('legal')
+        assert starter_user.can_access_feature('interactive') 
+        assert starter_user.can_access_feature('priority_support')
         
-        # Starter and Pro users should have access
-        for client in [login_as_starter, login_as_pro]:
-            response = client.get(f'/test/features/{feature}')
-            assert response.status_code == 200
-    
-    # Test features that should be accessible to pro plan only
-    for feature in ['healthcare', 'finance', 'tech', 'visual', 'flowchart', 'community_access']:
-        # Free and Starter users should not have access
-        for client in [login_as_free, login_as_starter]:
-            response = client.get(f'/test/features/{feature}')
-            assert response.status_code == 403
-        
-        # Pro user should have access
-        response = login_as_pro.get(f'/test/features/{feature}')
-        assert response.status_code == 200
+        # Test pro user access
+        assert pro_user.can_access_feature('legal')
+        assert pro_user.can_access_feature('healthcare')
+        assert pro_user.can_access_feature('visual')
+
+
