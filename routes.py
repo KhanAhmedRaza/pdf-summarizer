@@ -71,7 +71,7 @@ def process_payment():
     db.session.commit()
     
     flash(f"Payment successful! You are now on the {plan_type.capitalize()} plan.", "success")
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('pricing'))
 
 # Route for handling plan selection from pricing page
 @plans_bp.route('/select_plan/<plan_type>')

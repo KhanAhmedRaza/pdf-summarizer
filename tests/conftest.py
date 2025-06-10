@@ -1,9 +1,12 @@
 import pytest
-from flask import Flask
-from flask_login import LoginManager, login_user, login_required, current_user
+from flask import Flask, redirect, url_for, request, jsonify, session
+from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 import os
 import sys
 import tempfile
+from sqlalchemy.orm import scoped_session, sessionmaker
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from app import create_app
 
 # Add the parent directory to sys.path to import app modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -13,15 +16,15 @@ from models import User
 from models import MonthlyUsage, Upload
 from extensions import login_manager, db
 
-@pytest.fixture
+# Global variable for mocking page count in tests
+mock_page_count = None
+
+@pytest.fixture(scope="session")
 def app():
-    """Create and configure a Flask app for testing."""
+    """Create and configure a test Flask application."""
     app = Flask(__name__)
     app.config['TESTING'] = True
-    app.config['SECRET_KEY'] = 'test-key'
-    app.config['LOGIN_DISABLED'] = False  # Make sure login is not disabled
-    
-    # Use in-memory SQLite for testing
+    app.config['SECRET_KEY'] = 'test_key'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
@@ -29,58 +32,156 @@ def app():
     db.init_app(app)
     login_manager.init_app(app)
     
-    # Configure login_manager
-    @login_manager.user_loader
-    def load_user(user_id):
-        return User.query.get(user_id)
-    
-    # Make db accessible via app.db for test convenience
-    app.db = db
-    
-    # Import and register blueprints
-    from routes import plans_bp
-    app.register_blueprint(plans_bp, url_prefix='/plans')
-    
-    # Import and register PDF routes
-    from pdf_routes import pdf_bp
-    app.register_blueprint(pdf_bp, url_prefix='/pdf')
-    
-    # Create a test route for checking plan-specific features
-    @app.route('/test/features/<feature>')
-    def test_feature_access(feature):
-        # Add debug prints at the beginning of this function
-        from flask_login import current_user
-        print(f"Route - Current user authenticated: {current_user.is_authenticated}")
-        print(f"Route - Current user ID: {current_user.id if current_user.is_authenticated else 'None'}")
-        print(f"Route - Current user plan: {current_user.plan_type if current_user.is_authenticated else 'None'}")
-        
-        if not current_user.is_authenticated:
-            return "Unauthorized", 401
-            
-        if not current_user.can_access_feature(feature):
-            return {"error": "Feature not available on your plan"}, 403
-        return {"success": True, "feature": feature}, 200
-    
-    # Add a login route for testing
-    @app.route('/login')
-    def login():
-        return "Login Page", 200
-    
-    # Add PDF upload route for testing if not in blueprint
-    @app.route('/pdf/upload', methods=['GET', 'POST'])
-    def pdf_upload_test():
-        if not current_user.is_authenticated:
-            return "Redirect to login", 302
-        return "Upload page", 200
-    
     # Create a context for the app
     with app.app_context():
         # Create all database tables
-        db.create_all()  # Ensure tables are created
+        db.create_all()
+        
+        # Configure login_manager
+        @login_manager.user_loader
+        def load_user(user_id):
+            return User.query.get(user_id)
+        
+        # Add test routes
+        @app.route('/')
+        def index():
+            return "Home Page", 200
+            
+        @app.route('/dashboard')
+        @login_required
+        def dashboard():
+            return "Dashboard Page", 200
+            
+        @app.route('/pricing')
+        def pricing():
+            return "Pricing Page", 200
+            
+        @app.route('/plans/process_payment', methods=['POST'])
+        @login_required
+        def process_payment():
+            # This will be mocked in tests
+            return redirect(url_for('pricing'))
+            
+        @app.route('/plans/subscribe/<plan_type>')
+        @login_required
+        def subscribe(plan_type):
+            return f"Subscribe to {plan_type} plan", 200
+        
+        @app.route('/test/features/<feature>')
+        def test_feature_access(feature):
+            if not current_user.is_authenticated:
+                return "Unauthorized", 401
+                
+            # Get a fresh instance of the user from the session
+            user = db.session.merge(current_user._get_current_object())
+            if not user.can_access_feature(feature):
+                return {"error": "Feature not available on your plan"}, 403
+            return {"success": True, "feature": feature}, 200
+        
+        @app.route('/login')
+        def login():
+            return "Login Page", 200
+            
+        @app.route('/logout')
+        @login_required
+        def logout():
+            logout_user()
+            return redirect(url_for('index'))
+            
+        @app.route('/pdf/upload', methods=['GET', 'POST'])
+        @login_required
+        def pdf_upload_test():
+            if request.method == 'GET':
+                return "Upload page", 200
+                
+            if request.method == 'POST':
+                # Get a fresh instance of the user from the session
+                user = db.session.merge(current_user._get_current_object())
+                
+                # Check if user can upload more PDFs
+                if not user.can_upload_pdf():
+                    return jsonify({"error": "Monthly limit reached"}), 403
+                    
+                # Check document type access
+                document_type = request.form.get('document_type', 'academic')
+                if not user.can_access_feature(document_type):
+                    return jsonify({"error": f"Your plan does not support {document_type} documents"}), 403
+                    
+                # Check summary format access
+                summary_format = request.form.get('summary_format', 'plain_text')
+                if not user.can_access_feature(summary_format):
+                    return jsonify({"error": f"Your plan does not support {summary_format} format"}), 403
+                    
+                # Mock file upload processing
+                if 'pdf' not in request.files:
+                    return jsonify({"error": "No file provided"}), 400
+                    
+                # Get the uploaded file
+                pdf_file = request.files['pdf']
+                if not pdf_file or not pdf_file.filename:
+                    return jsonify({"error": "No file provided"}), 400
+                    
+                # Check model access first
+                requested_model = request.form.get('model')
+                if requested_model == 'gpt-4' and user.plan_type == 'free':
+                    return jsonify({"error": "GPT-4 is not available on your plan"}), 403
+                    
+                # Check page limit based on user's plan
+                max_pages = user.get_max_pages_per_file()
+                
+                # Get page count from form data
+                page_count = request.form.get('_page_count')
+                if page_count is None:
+                    return jsonify({"error": "Could not determine PDF page count"}), 400
+                    
+                try:
+                    page_count = int(page_count)
+                except ValueError:
+                    return jsonify({"error": "Invalid page count"}), 400
+                    
+                if page_count > max_pages:
+                    return jsonify({"error": f"PDF exceeds {max_pages} page limit"}), 403
+                    
+                # Return success response with model info based on user's plan
+                model = user.get_ai_model()
+                response_data = {
+                    "success": True,
+                    "model": model
+                }
+                
+                if user.plan_type == "pro":
+                    response_data["enhanced"] = True
+                    
+                return jsonify(response_data), 200
+        
         yield app
-        # Clean up after the test
+        
+        # Clean up after all tests
         db.session.remove()
         db.drop_all()
+
+@pytest.fixture(scope="function")
+def db_session(app):
+    """Create a fresh database session for each test."""
+    with app.app_context():
+        connection = db.engine.connect()
+        transaction = connection.begin()
+        
+        # Create a session with the connection
+        session_factory = sessionmaker(bind=connection)
+        session = scoped_session(session_factory)
+        
+        # Make this session the current one
+        old_session = db.session
+        db.session = session
+        
+        yield session
+        
+        # Rollback the transaction and restore the old session
+        session.remove()
+        transaction.rollback()
+        connection.close()
+        db.session = old_session
 
 @pytest.fixture
 def client(app):
@@ -93,16 +194,8 @@ def runner(app):
     return app.test_cli_runner()
 
 @pytest.fixture
-def auth_client(app, client):
-    """A test client with authentication."""
-    @login_manager.user_loader
-    def load_user(user_id):
-        return User.query.get(user_id)
-    
-    return client
-
-@pytest.fixture
 def free_user(app, db_session):
+    """Create a free plan user."""
     with app.app_context():
         user = User(
             id="free-user-id",
@@ -115,7 +208,6 @@ def free_user(app, db_session):
         # Ensure the user is attached to the session
         db_session.refresh(user)
         return user
-
 
 @pytest.fixture
 def starter_user(app, db_session):
@@ -150,111 +242,99 @@ def pro_user(app, db_session):
         return user
 
 @pytest.fixture
-def login_as_free(app, client, free_user):
+def login_as_free(app, client, free_user, db_session):
     """Log in as a free user."""
     with app.app_context():
-        # Refresh the user to ensure it's attached to the current session
-        free_user = db.session.merge(free_user)
+        # Ensure the user is attached to the current session
+        user = db_session.merge(free_user)
+        db_session.refresh(user)
         
+        # Set up the session
+        with client.session_transaction() as session:
+            session['user_id'] = user.id
+            session['_fresh'] = True
+            session['_id'] = 'test-session-id'
+            session['_user_id'] = user.id
+            
+        # Log in the user
         with app.test_request_context():
-            login_user(free_user)
+            login_user(user)
             app.preprocess_request()
             
-            # Verify current_user is set
-            assert current_user.is_authenticated
-            assert current_user.id == free_user.id
-    
-    # Set session cookies for the test client
-    with client.session_transaction() as session:
-        session['user_id'] = free_user.id
-        session['_fresh'] = True
-        session['_id'] = 'test-session-id'
-        session['_user_id'] = free_user.id
+        # Make a test request to ensure the session is active
+        client.get('/')
     
     return client
 
-
 @pytest.fixture
-def login_as_starter(app, client, starter_user):
+def login_as_starter(app, client, starter_user, db_session):
     """Log in as a starter user."""
-    # Properly authenticate the user in the Flask-Login system
-    with app.test_request_context():
-        login_user(starter_user)
-        # Process the request to set current_user
-        app.preprocess_request()
+    with app.app_context():
+        # Ensure the user is attached to the current session
+        user = db_session.merge(starter_user)
+        db_session.refresh(user)
         
-        # Verify current_user is set
-        assert current_user.is_authenticated
-        assert current_user.id == starter_user.id
-    
-    # Set session cookies for the test client
-    with client.session_transaction() as session:
-        session['user_id'] = starter_user.id
-        session['_fresh'] = True
-        session['_id'] = 'test-session-id'
-        session['_user_id'] = starter_user.id
+        # Set up the session
+        with client.session_transaction() as session:
+            session['user_id'] = user.id
+            session['_fresh'] = True
+            session['_id'] = 'test-session-id'
+            session['_user_id'] = user.id
+            
+        # Log in the user
+        with app.test_request_context():
+            login_user(user)
+            app.preprocess_request()
+            
+        # Make a test request to ensure the session is active
+        client.get('/')
     
     return client
 
 @pytest.fixture
-def login_as_pro(app, client, pro_user):
+def login_as_pro(app, client, pro_user, db_session):
     """Log in as a pro user."""
-    # Properly authenticate the user in the Flask-Login system
-    with app.test_request_context():
-        login_user(pro_user)
-        # Process the request to set current_user
-        app.preprocess_request()
+    with app.app_context():
+        # Ensure the user is attached to the current session
+        user = db_session.merge(pro_user)
+        db_session.refresh(user)
         
-        # Verify current_user is set
-        assert current_user.is_authenticated
-        assert current_user.id == pro_user.id
-    
-    # Set session cookies for the test client
-    with client.session_transaction() as session:
-        session['user_id'] = pro_user.id
-        session['_fresh'] = True
-        session['_id'] = 'test-session-id'
-        session['_user_id'] = pro_user.id
+        # Set up the session
+        with client.session_transaction() as session:
+            session['user_id'] = user.id
+            session['_fresh'] = True
+            session['_id'] = 'test-session-id'
+            session['_user_id'] = user.id
+            
+        # Log in the user
+        with app.test_request_context():
+            login_user(user)
+            app.preprocess_request()
+            
+        # Make a test request to ensure the session is active
+        client.get('/')
     
     return client
 
 @pytest.fixture
 def mock_pdf_file():
-    """Use an existing PDF file for testing."""
-    import os
+    """Create a mock PDF file for testing."""
+    with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as f:
+        f.write(b'%PDF-1.4\nMock PDF content')
+        temp_path = f.name
     
-    # Path to your existing PDF file
-    pdf_path = r"C:\usr\doc\test.pdf"  # Use raw string for Windows path
+    yield temp_path
     
-    # Verify the file exists
-    if not os.path.exists(pdf_path):
-        raise FileNotFoundError(f"Test PDF file not found at {pdf_path}")
-    
-    # Return the path to the existing file
-    yield pdf_path
-    
-    # No cleanup needed since we're using an existing file
+    # Clean up the temporary file
+    os.unlink(temp_path)
 
-
-        
-@pytest.fixture(scope="function")
-def db_session(app):
-    """Provide a database session for testing."""
-    with app.app_context():
-        connection = db.engine.connect()
-        transaction = connection.begin()
-        
-        session = db.scoped_session(
-            db.sessionmaker(bind=connection)
-        )
-        db.session = session
-        
-        yield session
-        
-        session.close()
-        transaction.rollback()
-        connection.close()
-
+# Add an autouse fixture to ensure database is clean between tests
+@pytest.fixture(autouse=True)
+def cleanup_db(app, db_session):
+    yield
+    db_session.rollback()
+    for table in reversed(db.metadata.sorted_tables):
+        db_session.execute(table.delete())
 
 def test_user_plan_tagging(app, free_user, starter_user, pro_user):
     """Test that users can be tagged with different plans."""

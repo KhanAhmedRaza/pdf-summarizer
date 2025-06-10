@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
+from flask import Blueprint, render_template, request, redirect, url_for, flash, abort, jsonify
 from flask_login import login_required, current_user
 from models import db, User, Upload, MonthlyUsage
 from decorators import plan_required, feature_required, check_upload_limits, check_page_limit, track_pdf_usage
@@ -19,24 +19,59 @@ def upload_pdf():
         
         # Check if user can access this document type
         if not current_user.can_access_feature(document_type):
-            flash(f"Your current plan does not support {document_type} documents.", "warning")
-            return redirect(url_for('pricing'))
+            return jsonify({"error": f"Your plan does not support {document_type} documents"}), 403
         
         # Get summary format from form
         summary_format = request.form.get('summary_format', 'plain_text')
         
         # Check if user can access this summary format
         if not current_user.can_access_feature(summary_format):
-            flash(f"Your current plan does not support {summary_format} summaries.", "warning")
-            return redirect(url_for('pricing'))
+            return jsonify({"error": f"Your plan does not support {summary_format} format"}), 403
         
+        # Check if file was uploaded
+        if 'pdf' not in request.files:
+            return jsonify({"error": "No file provided"}), 400
+            
+        # Get the uploaded file
+        pdf_file = request.files['pdf']
+        if not pdf_file or not pdf_file.filename:
+            return jsonify({"error": "No file provided"}), 400
+            
+        # Check model access first
+        requested_model = request.form.get('model')
+        if requested_model == 'gpt-4' and current_user.plan_type == 'free':
+            return jsonify({"error": "GPT-4 is not available on your plan"}), 403
+            
+        # Check page limit based on user's plan
+        max_pages = current_user.get_max_pages_per_file()
+        
+        # Get page count from form data
+        page_count = request.form.get('page_count')
+        if page_count is None:
+            return jsonify({"error": "Could not determine PDF page count"}), 400
+            
+        try:
+            page_count = int(page_count)
+        except ValueError:
+            return jsonify({"error": "Invalid page count"}), 400
+            
+        if page_count > max_pages:
+            return jsonify({"error": f"PDF exceeds {max_pages} page limit"}), 403
+            
         # Process the PDF (this would be handled by the track_pdf_usage decorator)
         # In a real app, you would send the PDF to your summarization service here
         
-        # Redirect to processing page
-        return redirect(url_for('pdf.process', 
-                               document_type=document_type, 
-                               summary_format=summary_format))
+        # Return success response with model info based on user's plan
+        model = current_user.get_ai_model()
+        response_data = {
+            "success": True,
+            "model": model
+        }
+        
+        if current_user.plan_type == "pro":
+            response_data["enhanced"] = True
+            
+        return jsonify(response_data), 200
     
     # GET request - show upload form with plan-specific options
     return render_template('upload.html', 
