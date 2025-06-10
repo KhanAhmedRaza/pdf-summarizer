@@ -18,6 +18,7 @@ from extensions import db, migrate, login_manager
 from models import User
 from routes import plans_bp
 from pdf_routes import pdf_bp
+from main_routes import main_bp
 from flask_migrate import upgrade as db_upgrade
 
 # Configure logging
@@ -46,12 +47,13 @@ def create_app(testing=False, **kwargs):
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
-    login_manager.login_view = 'login'
+    login_manager.login_view = 'main.login'
     
     # Ensure upload folder exists
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     
     # Register blueprints
+    app.register_blueprint(main_bp)
     app.register_blueprint(plans_bp, url_prefix='/plans')
     app.register_blueprint(pdf_bp, url_prefix='/pdf')
     
