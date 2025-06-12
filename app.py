@@ -35,6 +35,10 @@ def create_app(testing=False, **kwargs):
     app.config['UPLOAD_FOLDER'] = '/tmp/pdf_uploads'
     app.config['FREE_TIER_MAX_SIZE'] = 5 * 1024 * 1024
     
+    # Google OAuth configuration
+    app.config['GOOGLE_CLIENT_ID'] = os.environ.get('GOOGLE_CLIENT_ID')
+    app.config['GOOGLE_CLIENT_SECRET'] = os.environ.get('GOOGLE_CLIENT_SECRET')
+    
     # Database configuration
     app.config['TESTING'] = testing
     if testing:
