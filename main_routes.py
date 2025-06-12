@@ -10,8 +10,24 @@ from utils.summarizer import generate_summary
 from datetime import datetime
 import os
 from oauth import setup_oauth
+from authlib.integrations.flask_client import OAuth
 
 main_bp = Blueprint('main', __name__)
+
+# Initialize OAuth
+oauth = OAuth()
+
+@main_bp.record_once
+def on_load(state):
+    app = state.app
+    oauth.init_app(app)
+    oauth.register(
+        name='google',
+        client_id=app.config['GOOGLE_CLIENT_ID'],
+        client_secret=app.config['GOOGLE_CLIENT_SECRET'],
+        server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+        client_kwargs={'scope': 'openid email profile'}
+    )
 
 @main_bp.route('/manage/migrate', methods=['GET'])
 def run_migration():
@@ -172,10 +188,10 @@ def login():
 @main_bp.route('/login/google')
 def login_google():
     # Google OAuth login
-    return oauth.google.authorize_redirect(url_for('main.login_callback', _external=True))
+    return oauth.google.authorize_redirect(url_for('main.google_callback', _external=True))
 
-@main_bp.route('/login/callback')
-def login_callback():
+@main_bp.route('/login/google/callback')
+def google_callback():
     # Handle the OAuth callback
     token = oauth.google.authorize_access_token()
     user_info = oauth.google.get('userinfo').json()
