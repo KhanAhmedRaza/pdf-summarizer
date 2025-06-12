@@ -24,7 +24,7 @@
 <section id="upload-section" class="container">
     <div class="upload-section">
         <h2 class="upload-title">Upload Your PDF</h2>
-        <form action="{{ url_for('upload_pdf') }}" method="post" enctype="multipart/form-data" id="upload-form">
+        <form action="{{ url_for('main.upload_pdf') }}" method="post" enctype="multipart/form-data" id="upload-form">
             <div class="upload-area" id="drop-area">
                 <i class="fas fa-cloud-upload-alt upload-icon"></i>
                 <p class="upload-text">Drag & drop your PDF here or click to browse</p>
@@ -175,7 +175,7 @@
             </div>
             <div class="modal-body">
                 <p class="text-muted">Your PDF has been processed! Sign in or create an account to view your summary.</p>
-               <a href="{{ url_for('login') }}" class="btn btn-google w-100 mb-3">
+               <a href="{{ url_for('main.login') }}" class="btn btn-google w-100 mb-3">
 					<i class="fab fa-google me-2"></i> Continue with Google
 				</a>
 

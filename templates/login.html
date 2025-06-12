@@ -17,7 +17,7 @@
                         {% endif %}
                     {% endwith %}
                     
-                    <form method="post" action="{{ url_for('login') }}">
+                    <form method="post" action="{{ url_for('main.login') }}">
                         <div class="mb-3">
                             <label for="email" class="form-label">Email address</label>
                             <input type="email" class="form-control" id="email" name="email" required>
@@ -42,12 +42,12 @@
                         <span>or</span>
                     </div>
                     
-                    <a href="{{ url_for('login_google') }}" class="btn btn-google w-100 mt-3">
+                    <a href="{{ url_for('main.login_google') }}" class="btn btn-google w-100 mt-3">
                         <i class="fab fa-google me-2"></i> Continue with Google
                     </a>
                     
                     <p class="text-center mt-4">
-                        Don't have an account? <a href="{{ url_for('register') }}" class="text-decoration-none">Sign up</a>
+                        Don't have an account? <a href="{{ url_for('main.register') }}" class="text-decoration-none">Sign up</a>
                     </p>
                 </div>
             </div>
