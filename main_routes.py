@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import uuid
 from extensions import db, login_manager
-from models import User
+from models.user import User
 from utils.pdf_processor import extract_text_from_pdf
 from utils.summarizer import generate_summary
 from datetime import datetime
@@ -151,7 +151,22 @@ def login():
         # Find user by email using SQLAlchemy
         user = User.query.filter_by(email=email).first()
         
-        if user and user.password_hash and check_password_hash(user.password_hash, password):
+        if not user:
+            print(f"User not found: {email}")
+            flash('Invalid email or password', 'danger')
+            return redirect(url_for('main.login'))
+            
+        if user.oauth_provider:
+            print(f"User {email} is an OAuth user ({user.oauth_provider})")
+            flash(f'This account is linked to {user.oauth_provider}. Please use {user.oauth_provider} login.', 'warning')
+            return redirect(url_for('main.login'))
+            
+        if not user.password_hash:
+            print(f"User {email} has no password set")
+            flash('Invalid email or password', 'danger')
+            return redirect(url_for('main.login'))
+            
+        if check_password_hash(user.password_hash, password):
             print(f"Login successful for user: {email}")
             login_user(user)
             
@@ -161,7 +176,7 @@ def login():
             
             return redirect(url_for('main.index'))
         else:
-            print(f"Login failed for email: {email}")
+            print(f"Invalid password for user: {email}")
             flash('Invalid email or password', 'danger')
     
     # For both GET requests and failed POST requests
