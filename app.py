@@ -67,8 +67,27 @@ def create_app(testing=False, **kwargs):
     
     # Initialize database tables
     with app.app_context():
-        db.create_all()
-        logger.info("Database tables created or confirmed to exist!")
+        try:
+            # Try to create all tables
+            db.create_all()
+            logger.info("Database tables created or confirmed to exist!")
+            
+            # Check if oauth_provider column exists in User table
+            with db.engine.connect() as conn:
+                result = conn.execute("PRAGMA table_info(user)")
+                columns = [row[1] for row in result]
+                
+                if 'oauth_provider' not in columns:
+                    logger.info("Adding oauth_provider column to User table...")
+                    conn.execute("ALTER TABLE user ADD COLUMN oauth_provider VARCHAR(20)")
+                    logger.info("oauth_provider column added successfully!")
+                    
+        except Exception as e:
+            logger.error(f"Error during database initialization: {str(e)}")
+            # If there's an error, try to recreate the tables
+            db.drop_all()
+            db.create_all()
+            logger.info("Database tables recreated!")
     
     return app
 
