@@ -1,13 +1,14 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from datetime import datetime, timedelta
+import uuid
 
 # Import db from your existing setup
 # This assumes you have a db.py or similar that initializes SQLAlchemy
 from extensions import db
 
 class User(UserMixin, db.Model):
-    id = db.Column(db.String(36), primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     email = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=True)  # Make nullable for OAuth users
     name = db.Column(db.String(100))

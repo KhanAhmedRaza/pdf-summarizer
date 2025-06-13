@@ -172,7 +172,7 @@ def login():
         # Find user by email using SQLAlchemy
         user = User.query.filter_by(email=email).first()
         
-        if user and check_password_hash(user.password_hash, password):
+        if user and user.password_hash and check_password_hash(user.password_hash, password):
             print(f"Login successful for user: {email}")
             login_user(user)
             
@@ -205,20 +205,24 @@ def google_callback():
         user = User.query.filter_by(email=user_info['email']).first()
         
         if not user:
-            # Create new user
+            # Create new user with generated UUID
             user = User(
                 email=user_info['email'],
                 name=user_info.get('name', user_info['email']),
-                oauth_provider='google'
+                oauth_provider='google',
+                profile_pic=user_info.get('picture')  # Add profile picture if available
             )
             db.session.add(user)
             db.session.commit()
+            current_app.logger.info(f"Created new user with email: {user.email}")
         else:
             # Update existing user's OAuth info if needed
             if not user.oauth_provider:
                 user.oauth_provider = 'google'
                 user.name = user_info.get('name', user.name)  # Update name if not set
+                user.profile_pic = user_info.get('picture', user.profile_pic)  # Update profile pic if available
                 db.session.commit()
+                current_app.logger.info(f"Updated existing user with email: {user.email}")
         
         # Log in the user
         login_user(user)
@@ -245,20 +249,26 @@ def register():
             flash('Email already registered', 'danger')
             return redirect(url_for('main.register'))
         
-        # Create new user
-        user = User(
-            email=email,
-            name=name,
-            password_hash=generate_password_hash(password)
-        )
-        db.session.add(user)
-        db.session.commit()
-        
-        # Log in the new user
-        login_user(user)
-        
-        flash('Registration successful!', 'success')
-        return redirect(url_for('main.index'))
+        try:
+            # Create new user with generated UUID
+            user = User(
+                email=email,
+                name=name,
+                password_hash=generate_password_hash(password)
+            )
+            db.session.add(user)
+            db.session.commit()
+            
+            # Log in the new user
+            login_user(user)
+            
+            flash('Registration successful!', 'success')
+            return redirect(url_for('main.index'))
+        except Exception as e:
+            current_app.logger.error(f"Registration error: {str(e)}")
+            db.session.rollback()
+            flash('Error during registration. Please try again.', 'danger')
+            return redirect(url_for('main.register'))
     
     return render_template('register.html')
 
