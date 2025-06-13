@@ -11,8 +11,10 @@ from datetime import datetime
 import os
 from oauth import setup_oauth
 from authlib.integrations.flask_client import OAuth
+import logging
 
 main_bp = Blueprint('main', __name__)
+logger = logging.getLogger(__name__)
 
 # Initialize OAuth
 oauth = OAuth()
@@ -102,30 +104,7 @@ def upload_pdf():
         
         # If user is logged in, generate summary immediately
         if current_user.is_authenticated:
-            # Check usage limit
-            if check_usage_limit(current_user.id):
-                flash('You have reached your daily limit of 3 summaries. Please upgrade for unlimited summaries.', 'warning')
-                return redirect(url_for('main.index'))
-            
-            # Generate summary
-            summary = generate_summary(text)
-            
-            # Track usage
-            track_usage(current_user.id)
-            
-            # Store summary
-            summary_id = str(uuid.uuid4())
-            summaries_db[summary_id] = {
-                'user_id': current_user.id,
-                'filename': filename,
-                'summary': summary,
-                'created_at': datetime.now()
-            }
-            
-            # Clean up the file
-            os.remove(file_path)
-            
-            return redirect(url_for('main.summary', summary_id=summary_id))
+            return redirect(url_for('main.preview_to_summary'))
         else:
             # For non-logged in users, show preview and prompt to sign in
             preview_text = text[:500] + '...' if len(text) > 500 else text
@@ -214,7 +193,7 @@ def google_callback():
             )
             db.session.add(user)
             db.session.commit()
-            current_app.logger.info(f"Created new user with email: {user.email}")
+            logger.info(f"Created new user with email: {user.email}")
         else:
             # Update existing user's OAuth info if needed
             if not user.oauth_provider:
@@ -222,7 +201,7 @@ def google_callback():
                 user.name = user_info.get('name', user.name)  # Update name if not set
                 user.profile_pic = user_info.get('picture', user.profile_pic)  # Update profile pic if available
                 db.session.commit()
-                current_app.logger.info(f"Updated existing user with email: {user.email}")
+                logger.info(f"Updated existing user with email: {user.email}")
         
         # Log in the user
         login_user(user)
@@ -233,7 +212,7 @@ def google_callback():
         
         return redirect(url_for('main.index'))
     except Exception as e:
-        current_app.logger.error(f"Google OAuth error: {str(e)}")
+        logger.error(f"Google OAuth error: {str(e)}")
         flash('Error during Google login. Please try again.', 'error')
         return redirect(url_for('main.login'))
 
@@ -265,7 +244,7 @@ def register():
             flash('Registration successful!', 'success')
             return redirect(url_for('main.index'))
         except Exception as e:
-            current_app.logger.error(f"Registration error: {str(e)}")
+            logger.error(f"Registration error: {str(e)}")
             db.session.rollback()
             flash('Error during registration. Please try again.', 'danger')
             return redirect(url_for('main.register'))
@@ -316,5 +295,50 @@ def post_login():
         return redirect(url_for('main.preview_to_summary'))
     
     return redirect(url_for('main.dashboard'))
+
+@main_bp.route('/preview_to_summary')
+@login_required
+def preview_to_summary():
+    try:
+        # Get the stored PDF data from session
+        if not all(key in session for key in ['pdf_text', 'pdf_filename', 'pdf_path']):
+            flash('No PDF data found. Please upload your PDF again.', 'error')
+            return redirect(url_for('main.index'))
+        
+        text = session['pdf_text']
+        filename = session['pdf_filename']
+        file_path = session['pdf_path']
+        
+        # Check usage limit
+        if check_usage_limit(current_user.id):
+            flash('You have reached your daily limit of 3 summaries. Please upgrade for unlimited summaries.', 'warning')
+            return redirect(url_for('main.index'))
+        
+        # Generate summary
+        summary = generate_summary(text)
+        
+        # Track usage
+        track_usage(current_user.id)
+        
+        # Store summary
+        summary_id = str(uuid.uuid4())
+        summaries_db[summary_id] = {
+            'user_id': current_user.id,
+            'filename': filename,
+            'summary': summary,
+            'created_at': datetime.now()
+        }
+        
+        # Clean up the file and session
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        for key in ['pdf_text', 'pdf_filename', 'pdf_path']:
+            session.pop(key, None)
+        
+        return redirect(url_for('main.summary', summary_id=summary_id))
+    except Exception as e:
+        logger.error(f"Error generating summary: {str(e)}")
+        flash('Error generating summary. Please try again.', 'error')
+        return redirect(url_for('main.index'))
 
 # Continue for all other routes...
