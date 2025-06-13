@@ -9,9 +9,10 @@ from extensions import db
 class User(UserMixin, db.Model):
     id = db.Column(db.String(36), primary_key=True)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    password_hash = db.Column(db.String(200))
+    password_hash = db.Column(db.String(200), nullable=True)  # Make nullable for OAuth users
     name = db.Column(db.String(100))
     profile_pic = db.Column(db.String(200))
+    oauth_provider = db.Column(db.String(20), nullable=True)  # Make nullable with no default
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Plan information

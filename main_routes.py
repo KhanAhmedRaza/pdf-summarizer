@@ -213,6 +213,12 @@ def google_callback():
             )
             db.session.add(user)
             db.session.commit()
+        else:
+            # Update existing user's OAuth info if needed
+            if not user.oauth_provider:
+                user.oauth_provider = 'google'
+                user.name = user_info.get('name', user.name)  # Update name if not set
+                db.session.commit()
         
         # Log in the user
         login_user(user)
