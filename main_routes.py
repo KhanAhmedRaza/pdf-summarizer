@@ -26,7 +26,10 @@ def on_load(state):
         client_id=app.config['GOOGLE_CLIENT_ID'],
         client_secret=app.config['GOOGLE_CLIENT_SECRET'],
         server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-        client_kwargs={'scope': 'openid email profile'}
+        client_kwargs={
+            'scope': 'openid email profile',
+            'token_endpoint_auth_method': 'client_secret_post'
+        }
     )
 
 @main_bp.route('/manage/migrate', methods=['GET'])
@@ -192,31 +195,37 @@ def login_google():
 
 @main_bp.route('/login/google/callback')
 def google_callback():
-    # Handle the OAuth callback
-    token = oauth.google.authorize_access_token()
-    user_info = oauth.google.get('userinfo').json()
-    
-    # Check if user exists
-    user = User.query.filter_by(email=user_info['email']).first()
-    
-    if not user:
-        # Create new user
-        user = User(
-            email=user_info['email'],
-            name=user_info['name'],
-            oauth_provider='google'
-        )
-        db.session.add(user)
-        db.session.commit()
-    
-    # Log in the user
-    login_user(user)
-    
-    # Check if there's a pending PDF in session
-    if 'pdf_text' in session:
-        return redirect(url_for('main.preview_to_summary'))
-    
-    return redirect(url_for('main.index'))
+    try:
+        # Handle the OAuth callback
+        token = oauth.google.authorize_access_token()
+        resp = oauth.google.get('https://www.googleapis.com/oauth2/v3/userinfo')
+        user_info = resp.json()
+        
+        # Check if user exists
+        user = User.query.filter_by(email=user_info['email']).first()
+        
+        if not user:
+            # Create new user
+            user = User(
+                email=user_info['email'],
+                name=user_info.get('name', user_info['email']),
+                oauth_provider='google'
+            )
+            db.session.add(user)
+            db.session.commit()
+        
+        # Log in the user
+        login_user(user)
+        
+        # Check if there's a pending PDF in session
+        if 'pdf_text' in session:
+            return redirect(url_for('main.preview_to_summary'))
+        
+        return redirect(url_for('main.index'))
+    except Exception as e:
+        current_app.logger.error(f"Google OAuth error: {str(e)}")
+        flash('Error during Google login. Please try again.', 'error')
+        return redirect(url_for('main.login'))
 
 @main_bp.route('/register', methods=['GET', 'POST'])
 def register():
